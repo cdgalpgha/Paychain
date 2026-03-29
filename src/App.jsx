@@ -1,17 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useAccount, useDisconnect } from 'wagmi';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
+import { supabase } from './supabase';
 
 const CHAINS = ["ERC20", "BEP20", "Polygon", "Arbitrum", "Optimism"];
 const TOKENS = ["USDT", "USDC"];
-
-const initialEmployees = [
-  { id: 1, name: "Sarah Chen", email: "sarah@acme.com", addr: "0xA1B2...7890", chain: "ERC20", salary: 4000 },
-  { id: 2, name: "Marcus Osei", email: "marcus@acme.com", addr: "0xF9E8...3210", chain: "BEP20", salary: 3500 },
-  { id: 3, name: "Priya Sharma", email: "priya@acme.com", addr: "0x1A2B...ABCD", chain: "ERC20", salary: 5000 },
-  { id: 4, name: "Jake Torres", email: "jake@acme.com", addr: "0x9Z8Y...EFGH", chain: "Polygon", salary: 3200 },
-  { id: 5, name: "Lena Müller", email: "lena@acme.com", addr: "0x2B3C...IJKL", chain: "BEP20", salary: 4500 },
-];
 
 const chainClass = (c) => c.toLowerCase().replace(/\s/g, "");
 
@@ -46,7 +39,6 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-// Particle component
 const Particles = () => {
   const particles = Array.from({ length: 20 }, (_, i) => ({
     id: i,
@@ -58,55 +50,26 @@ const Particles = () => {
     animNum: Math.floor(Math.random() * 3) + 1,
     color: ['#7C5CFC', '#10B981', '#3B82F6', '#F59E0B'][Math.floor(Math.random() * 4)],
   }));
-
   return (
     <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }}>
       {particles.map(p => (
-        <div key={p.id} style={{
-          position: 'absolute',
-          left: `${p.left}%`,
-          top: `${p.top}%`,
-          width: p.size,
-          height: p.size,
-          borderRadius: '50%',
-          background: p.color,
-          opacity: 0.3,
-          animation: `float${p.animNum} ${p.duration}s ${p.delay}s ease-in-out infinite`,
-          boxShadow: `0 0 ${p.size * 2}px ${p.color}`,
-        }} />
+        <div key={p.id} style={{ position: 'absolute', left: `${p.left}%`, top: `${p.top}%`, width: p.size, height: p.size, borderRadius: '50%', background: p.color, opacity: 0.3, animation: `float${p.animNum} ${p.duration}s ${p.delay}s ease-in-out infinite`, boxShadow: `0 0 ${p.size * 2}px ${p.color}` }} />
       ))}
     </div>
   );
 };
 
-// Confetti component
 const Confetti = ({ show }) => {
   if (!show) return null;
   const pieces = Array.from({ length: 40 }, (_, i) => ({
-    id: i,
-    left: Math.random() * 100,
-    delay: Math.random() * 1.5,
-    duration: Math.random() * 1.5 + 2,
-    size: Math.random() * 8 + 4,
-    color: ['#7C5CFC', '#10B981', '#F59E0B', '#3B82F6', '#EF4444', '#EC4899', '#F97316'][Math.floor(Math.random() * 7)],
-    animNum: Math.floor(Math.random() * 6) + 1,
-    shape: Math.random() > 0.5 ? '50%' : '0%',
+    id: i, left: Math.random() * 100, delay: Math.random() * 1.5, duration: Math.random() * 1.5 + 2,
+    size: Math.random() * 8 + 4, color: ['#7C5CFC', '#10B981', '#F59E0B', '#3B82F6', '#EF4444', '#EC4899', '#F97316'][Math.floor(Math.random() * 7)],
+    animNum: Math.floor(Math.random() * 6) + 1, shape: Math.random() > 0.5 ? '50%' : '0%',
   }));
-
   return (
     <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 999, overflow: 'hidden' }}>
       {pieces.map(p => (
-        <div key={p.id} style={{
-          position: 'absolute',
-          left: `${p.left}%`,
-          top: '-10px',
-          width: p.size,
-          height: p.size,
-          background: p.color,
-          borderRadius: p.shape,
-          animation: `confetti-fall-${p.animNum} ${p.duration}s ${p.delay}s ease-in forwards`,
-          boxShadow: `0 0 6px ${p.color}88`,
-        }} />
+        <div key={p.id} style={{ position: 'absolute', left: `${p.left}%`, top: '-10px', width: p.size, height: p.size, background: p.color, borderRadius: p.shape, animation: `confetti-fall-${p.animNum} ${p.duration}s ${p.delay}s ease-in forwards`, boxShadow: `0 0 6px ${p.color}88` }} />
       ))}
     </div>
   );
@@ -117,11 +80,11 @@ export default function App() {
   const { openConnectModal } = useConnectModal();
   const { disconnect } = useDisconnect();
   const [showConfetti, setShowConfetti] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const [page, setPage] = useState("wallet");
   const [pageKey, setPageKey] = useState(0);
-  const [employees, setEmployees] = useState(initialEmployees);
-  const [nextId, setNextId] = useState(6);
+  const [employees, setEmployees] = useState([]);
   const [payAmounts, setPayAmounts] = useState({});
   const [payTokens, setPayTokens] = useState({});
   const [chainFilter, setChainFilter] = useState("All");
@@ -173,23 +136,34 @@ export default function App() {
   const textSecondary = "#9999BB";
   const textMuted = "#6B6B8A";
 
-  const btn = {
-    padding: "8px 16px", border: `1px solid ${border2}`, borderRadius: 8, cursor: "pointer",
-    fontSize: 13, fontWeight: 500, background: surface2, color: textSecondary,
-    transition: "all 0.2s", fontFamily: "inherit",
-  };
+  const btn = { padding: "8px 16px", border: `1px solid ${border2}`, borderRadius: 8, cursor: "pointer", fontSize: 13, fontWeight: 500, background: surface2, color: textSecondary, transition: "all 0.2s", fontFamily: "inherit" };
   const btnBrand = { ...btn, background: `linear-gradient(135deg, ${brand}, ${brandDark})`, color: "#fff", border: "none", boxShadow: `0 0 20px ${brand}44` };
   const btnGreen = { ...btn, background: `linear-gradient(135deg, ${green}, #059669)`, color: "#fff", border: "none" };
   const btnRed = { ...btn, background: redLight, border: `1px solid ${red}44`, color: red };
   const btnSm = { ...btn, padding: "5px 12px", fontSize: 12 };
   const btnBrandSm = { ...btnSm, background: `linear-gradient(135deg, ${brand}, ${brandDark})`, color: "#fff", border: "none", boxShadow: `0 0 12px ${brand}44` };
-
-  const input = {
-    width: "100%", padding: "9px 12px", border: `1px solid ${border}`, borderRadius: 8,
-    fontSize: 13, background: surface2, color: textPrimary, fontFamily: "inherit",
-    boxSizing: "border-box", outline: "none", transition: "border-color 0.15s",
-  };
+  const input = { width: "100%", padding: "9px 12px", border: `1px solid ${border}`, borderRadius: 8, fontSize: 13, background: surface2, color: textPrimary, fontFamily: "inherit", boxSizing: "border-box", outline: "none", transition: "border-color 0.15s" };
   const select = { ...input, width: "auto" };
+
+  // Load employees from Supabase on startup
+  useEffect(() => {
+    loadEmployees();
+    loadHistory();
+  }, []);
+
+  async function loadEmployees() {
+    setLoading(true);
+    const { data, error } = await supabase.from('employees').select('*').order('created_at', { ascending: true });
+    if (!error && data) setEmployees(data);
+    setLoading(false);
+  }
+
+  async function loadHistory() {
+    const { data, error } = await supabase.from('payroll_runs').select('*').order('created_at', { ascending: false });
+    if (!error && data) {
+      setHistory(data.map((r, i) => ({ ...r, id: i + 1, date: r.run_date, time: r.run_time, count: r.items?.length || 0, items: r.items || [] })));
+    }
+  }
 
   const filteredEmployees = employees.filter((e) => {
     const ms = !searchQ || e.name.toLowerCase().includes(searchQ) || e.email.toLowerCase().includes(searchQ);
@@ -208,16 +182,8 @@ export default function App() {
   const pendingApprovals = approvals.filter((a) => a.status === "Pending").length;
   const shortAddress = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "";
 
-  function navigateTo(newPage) {
-    setPage(newPage);
-    setPageKey(k => k + 1);
-  }
-
-  function triggerConfetti() {
-    setShowConfetti(true);
-    setTimeout(() => setShowConfetti(false), 4000);
-  }
-
+  function navigateTo(newPage) { setPage(newPage); setPageKey(k => k + 1); }
+  function triggerConfetti() { setShowConfetti(true); setTimeout(() => setShowConfetti(false), 4000); }
   function connectWallet() { if (openConnectModal) openConnectModal(); }
 
   function openAddModal() {
@@ -232,31 +198,32 @@ export default function App() {
     setShowAddModal(true);
   }
 
-  function saveEmployee() {
+  async function saveEmployee() {
     if (!formData.name || !formData.email || !formData.addr) return;
+    const empData = { name: formData.name, email: formData.email, addr: formData.addr, chain: formData.chain, salary: parseFloat(formData.salary) || null };
     if (editingEmployee) {
-      setEmployees(employees.map((e) => e.id === editingEmployee.id ? { ...e, ...formData, salary: parseFloat(formData.salary) || null } : e));
+      const { error } = await supabase.from('employees').update(empData).eq('id', editingEmployee.id);
+      if (!error) await loadEmployees();
     } else {
-      setEmployees([...employees, { id: nextId, ...formData, salary: parseFloat(formData.salary) || null }]);
-      setNextId(nextId + 1);
+      const { error } = await supabase.from('employees').insert([empData]);
+      if (!error) await loadEmployees();
     }
     setShowAddModal(false);
   }
 
-  function importCsv() {
+  async function importCsv() {
     const lines = csvText.trim().split("\n").filter((l) => l.trim());
     if (lines.length < 2) return;
     const h = lines[0].toLowerCase().split(",").map((x) => x.trim());
     const ni = h.indexOf("name"), ei = h.indexOf("email"), wi = h.indexOf("wallet"), ci = h.indexOf("chain"), si = h.indexOf("salary");
-    let id = nextId;
     const newEmps = [];
     for (let i = 1; i < lines.length; i++) {
       const c = lines[i].split(",").map((x) => x.trim());
       if (c.length < 3) continue;
-      newEmps.push({ id: id++, name: c[ni] || "Unknown", email: c[ei] || "", addr: c[wi] || "0x...", chain: c[ci] || "ERC20", salary: parseFloat(c[si]) || null });
+      newEmps.push({ name: c[ni] || "Unknown", email: c[ei] || "", addr: c[wi] || "0x...", chain: c[ci] || "ERC20", salary: parseFloat(c[si]) || null });
     }
-    setEmployees([...employees, ...newEmps]);
-    setNextId(id);
+    const { error } = await supabase.from('employees').insert(newEmps);
+    if (!error) await loadEmployees();
     setShowCsvModal(false);
     setCsvText("");
   }
@@ -293,19 +260,20 @@ export default function App() {
     return { items, total };
   }
 
-  function executePayroll() {
+  async function executePayroll() {
     if (!isConnected) { alert("Connect your treasury wallet first."); return; }
     const { items, total } = collectPayrollData();
     if (items.length === 0) { alert("Select at least one employee."); return; }
-    const run = { id: history.length + 1, date: new Date().toLocaleDateString(), time: new Date().toLocaleTimeString(), count: items.length, total, token: globalToken, items, status: "Success" };
-    setHistory([run, ...history]);
+    const runData = { run_date: new Date().toLocaleDateString(), run_time: new Date().toLocaleTimeString(), total, token: globalToken, status: "Success", items };
+    const { error } = await supabase.from('payroll_runs').insert([runData]);
+    if (!error) await loadHistory();
     setSuccess({ icon: "✓", title: "Payroll executed!", msg: `${items.length} payment(s) totaling $${total.toFixed(2)} ${globalToken} broadcast.`, bg: greenLight, color: green });
     triggerConfetti();
     setPayAmounts({});
     setSelectedEmployees({});
   }
 
-  function submitForApproval() {
+  async function submitForApproval() {
     if (!isConnected) { alert("Connect your treasury wallet first."); return; }
     const { items, total } = collectPayrollData();
     if (items.length === 0) { alert("Select at least one employee."); return; }
@@ -317,13 +285,14 @@ export default function App() {
     setSelectedEmployees({});
   }
 
-  function approveAndExecute() {
+  async function approveAndExecute() {
     const a = approvals.find((x) => x.id === reviewingId);
     if (!a) return;
     const updated = approvals.map((x) => x.id === reviewingId ? { ...x, status: "Approved", signerStatuses: x.signerStatuses.map((s) => ({ ...s, status: "Approved" })) } : x);
     setApprovals(updated);
-    const run = { id: history.length + 1, date: a.date, time: a.time, count: a.count, total: a.total, token: a.token, items: a.items, status: "Approved" };
-    setHistory([run, ...history]);
+    const runData = { run_date: a.date, run_time: a.time, total: a.total, token: a.token, status: "Approved", items: a.items };
+    const { error } = await supabase.from('payroll_runs').insert([runData]);
+    if (!error) await loadHistory();
     setShowReviewModal(false);
     triggerConfetti();
     setSuccess({ icon: "✓", title: "Approved & executed!", msg: `$${a.total.toFixed(2)} ${a.token} payroll approved and broadcast.`, bg: greenLight, color: green });
@@ -371,25 +340,13 @@ export default function App() {
     { id: "history", label: "History", icon: "◷", badge: history.length },
   ];
 
-  const modal = {
-    position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", backdropFilter: "blur(8px)",
-    display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100,
-  };
-  const modalBox = {
-    background: surface, borderRadius: 16, padding: 24, width: 400,
-    border: `1px solid ${border}`, boxShadow: `0 0 60px rgba(0,0,0,0.6)`,
-    animation: "scaleIn 0.25s ease forwards",
-  };
+  const modal = { position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 };
+  const modalBox = { background: surface, borderRadius: 16, padding: 24, width: 400, border: `1px solid ${border}`, boxShadow: `0 0 60px rgba(0,0,0,0.6)`, animation: "scaleIn 0.25s ease forwards" };
 
   return (
     <div style={{ fontFamily: "'Inter', system-ui, sans-serif", color: textPrimary, fontSize: 14, background: bg, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 20, position: "relative" }}>
-
-      {/* Particle background */}
       <Particles />
-
-      {/* Confetti */}
       <Confetti show={showConfetti} />
-
       <div style={{ display: "flex", width: "100%", maxWidth: 1100, height: 700, border: `1px solid ${border}`, borderRadius: 20, overflow: "hidden", background: surface, boxShadow: "0 8px 60px rgba(0,0,0,0.6)", position: "relative", zIndex: 1 }}>
 
         {/* Sidebar */}
@@ -453,8 +410,7 @@ export default function App() {
                       <div><div style={{ fontSize: 10, color: textMuted, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Network</div><div style={{ fontSize: 15, fontWeight: 700, color: textPrimary }}>Base</div></div>
                       <div><div style={{ fontSize: 10, color: textMuted, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Status</div><div style={{ fontSize: 15, fontWeight: 700, color: green }}>Connected ✓</div></div>
                     </div>
-                    <button onClick={() => disconnect()}
-                      style={{ width: "100%", padding: "10px", border: `1px solid ${red}44`, borderRadius: 10, cursor: "pointer", background: redLight, color: red, fontSize: 13, fontFamily: "inherit", fontWeight: 600, transition: "all 0.15s" }}>
+                    <button onClick={() => disconnect()} style={{ width: "100%", padding: "10px", border: `1px solid ${red}44`, borderRadius: 10, cursor: "pointer", background: redLight, color: red, fontSize: 13, fontFamily: "inherit", fontWeight: 600, transition: "all 0.15s" }}>
                       Disconnect wallet
                     </button>
                   </div>
@@ -476,31 +432,38 @@ export default function App() {
                     <button className="btn-hover-glow" style={btnBrandSm} onClick={openAddModal}>+ Add employee</button>
                   </div>
                 </div>
-                <div style={{ background: surface, borderRadius: 12, border: `1px solid ${border}`, overflow: "hidden" }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                    <thead>
-                      <tr style={{ background: surface2 }}>
-                        {["Name", "Email", "Wallet", "Chain", "Salary", ""].map((h) => (
-                          <th key={h} style={{ fontSize: 11, color: textMuted, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", padding: "12px 14px", borderBottom: `1px solid ${border}`, textAlign: "left" }}>{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredEmployees.map((e, idx) => (
-                        <tr key={e.id} style={{ borderBottom: idx < filteredEmployees.length - 1 ? `1px solid ${border}` : "none", transition: "background 0.15s" }}
-                          onMouseEnter={el => el.currentTarget.style.background = surface2}
-                          onMouseLeave={el => el.currentTarget.style.background = "transparent"}>
-                          <td style={{ padding: "12px 14px", fontWeight: 600, color: textPrimary }}>{e.name}</td>
-                          <td style={{ padding: "12px 14px", color: textSecondary, fontSize: 12 }}>{e.email}</td>
-                          <td style={{ padding: "12px 14px", fontFamily: "monospace", fontSize: 11, color: textMuted }}>{e.addr}</td>
-                          <td style={{ padding: "12px 14px" }}><ChainBadge chain={e.chain} /></td>
-                          <td style={{ padding: "12px 14px", fontWeight: 600, color: green }}>{e.salary ? `$${e.salary.toLocaleString()}` : <span style={{ color: textMuted }}>—</span>}</td>
-                          <td style={{ padding: "12px 14px" }}><button style={btnSm} onClick={() => openEditModal(e)}>Edit</button></td>
+                {loading ? (
+                  <div style={{ textAlign: "center", padding: "40px 0", color: textMuted }}>Loading employees...</div>
+                ) : (
+                  <div style={{ background: surface, borderRadius: 12, border: `1px solid ${border}`, overflow: "hidden" }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                      <thead>
+                        <tr style={{ background: surface2 }}>
+                          {["Name", "Email", "Wallet", "Chain", "Salary", ""].map((h) => (
+                            <th key={h} style={{ fontSize: 11, color: textMuted, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", padding: "12px 14px", borderBottom: `1px solid ${border}`, textAlign: "left" }}>{h}</th>
+                          ))}
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {filteredEmployees.map((e, idx) => (
+                          <tr key={e.id} style={{ borderBottom: idx < filteredEmployees.length - 1 ? `1px solid ${border}` : "none", transition: "background 0.15s" }}
+                            onMouseEnter={el => el.currentTarget.style.background = surface2}
+                            onMouseLeave={el => el.currentTarget.style.background = "transparent"}>
+                            <td style={{ padding: "12px 14px", fontWeight: 600, color: textPrimary }}>{e.name}</td>
+                            <td style={{ padding: "12px 14px", color: textSecondary, fontSize: 12 }}>{e.email}</td>
+                            <td style={{ padding: "12px 14px", fontFamily: "monospace", fontSize: 11, color: textMuted }}>{e.addr}</td>
+                            <td style={{ padding: "12px 14px" }}><ChainBadge chain={e.chain} /></td>
+                            <td style={{ padding: "12px 14px", fontWeight: 600, color: green }}>{e.salary ? `$${e.salary.toLocaleString()}` : <span style={{ color: textMuted }}>—</span>}</td>
+                            <td style={{ padding: "12px 14px" }}><button style={btnSm} onClick={() => openEditModal(e)}>Edit</button></td>
+                          </tr>
+                        ))}
+                        {filteredEmployees.length === 0 && (
+                          <tr><td colSpan={6} style={{ padding: "40px", textAlign: "center", color: textMuted }}>No employees yet. Add your first employee!</td></tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             )}
 
@@ -557,8 +520,7 @@ export default function App() {
                             <select value={payTokens[e.id] || globalToken} onChange={(ev) => setPayTokens({ ...payTokens, [e.id]: ev.target.value })} style={{ ...select, padding: "5px 8px", fontSize: 11 }}>{TOKENS.map((t) => <option key={t}>{t}</option>)}</select>
                           </td>
                           <td style={{ padding: "12px 14px" }}>
-                            <input type="number" placeholder="0.00" value={payAmounts[e.id] || ""} onChange={(ev) => setPayAmounts({ ...payAmounts, [e.id]: ev.target.value })}
-                              style={{ ...input, width: 100, padding: "6px 10px" }} />
+                            <input type="number" placeholder="0.00" value={payAmounts[e.id] || ""} onChange={(ev) => setPayAmounts({ ...payAmounts, [e.id]: ev.target.value })} style={{ ...input, width: 100, padding: "6px 10px" }} />
                           </td>
                         </tr>
                       ))}
