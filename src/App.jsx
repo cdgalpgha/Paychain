@@ -17,15 +17,15 @@ const chainClass = (c) => c.toLowerCase().replace(/\s/g, "");
 
 const ChainBadge = ({ chain }) => {
   const colors = {
-    erc20: { bg: "#DBEAFE", color: "#1D4ED8" },
-    bep20: { bg: "#FEF3C7", color: "#92400E" },
-    polygon: { bg: "#EDE9FE", color: "#6D28D9" },
-    arbitrum: { bg: "#CCFBF1", color: "#0F766E" },
-    optimism: { bg: "#FFE4E6", color: "#BE123C" },
+    erc20: { bg: "#1D3461", color: "#60A5FA" },
+    bep20: { bg: "#2D1F06", color: "#F59E0B" },
+    polygon: { bg: "#2D1F6E", color: "#A78BFA" },
+    arbitrum: { bg: "#063D33", color: "#10B981" },
+    optimism: { bg: "#3D0614", color: "#F87171" },
   };
-  const s = colors[chainClass(chain)] || { bg: "#F3F4F6", color: "#374151" };
+  const s = colors[chainClass(chain)] || { bg: "#1E1E2E", color: "#9999BB" };
   return (
-    <span style={{ background: s.bg, color: s.color, padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 500 }}>
+    <span style={{ background: s.bg, color: s.color, padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 600, border: `1px solid ${s.color}22` }}>
       {chain}
     </span>
   );
@@ -33,14 +33,14 @@ const ChainBadge = ({ chain }) => {
 
 const StatusBadge = ({ status }) => {
   const colors = {
-    Success: { bg: "#DCFCE7", color: "#16A34A" },
-    Pending: { bg: "#FEF3C7", color: "#D97706" },
-    Approved: { bg: "#DBEAFE", color: "#2563EB" },
-    Rejected: { bg: "#FEE2E2", color: "#DC2626" },
+    Success: { bg: "#063D1F", color: "#10B981", border: "#10B98133" },
+    Pending: { bg: "#2D1F06", color: "#F59E0B", border: "#F59E0B33" },
+    Approved: { bg: "#0D1F3D", color: "#3B82F6", border: "#3B82F633" },
+    Rejected: { bg: "#3D0614", color: "#EF4444", border: "#EF444433" },
   };
-  const s = colors[status] || { bg: "#F3F4F6", color: "#374151" };
+  const s = colors[status] || { bg: "#1E1E2E", color: "#9999BB", border: "#9999BB33" };
   return (
-    <span style={{ background: s.bg, color: s.color, padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 500 }}>
+    <span style={{ background: s.bg, color: s.color, padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 600, border: `1px solid ${s.border}` }}>
       {status}
     </span>
   );
@@ -85,31 +85,42 @@ export default function App() {
   const [newSignerAddr, setNewSignerAddr] = useState("");
   const [exportPreview, setExportPreview] = useState(null);
 
-  const brand = "#6C47FF";
-  const brandLight = "#EEE9FF";
-  const brandDark = "#4A2FCC";
-  const green = "#16A34A";
-  const greenLight = "#DCFCE7";
-  const amber = "#D97706";
-  const amberLight = "#FEF3C7";
-  const red = "#DC2626";
-  const redLight = "#FEE2E2";
-  const blue = "#2563EB";
-  const blueLight = "#DBEAFE";
+  // Dark theme colors
+  const bg = "#0A0A0F";
+  const surface = "#13131A";
+  const surface2 = "#1A1A28";
+  const border = "#1E1E2E";
+  const border2 = "#2A2A3E";
+  const brand = "#7C5CFC";
+  const brandDark = "#5C3FE0";
+  const brandLight = "#2D1F6E";
+  const green = "#10B981";
+  const greenLight = "#063D1F";
+  const amber = "#F59E0B";
+  const amberLight = "#2D1F06";
+  const red = "#EF4444";
+  const redLight = "#3D0614";
+  const blue = "#3B82F6";
+  const blueLight = "#0D1F3D";
+  const textPrimary = "#E2E2FF";
+  const textSecondary = "#9999BB";
+  const textMuted = "#6B6B8A";
 
   const btn = {
-    padding: "7px 14px", border: "0.5px solid #ccc", borderRadius: 8, cursor: "pointer",
-    fontSize: 13, background: "transparent", color: "#111", transition: "all 0.15s", fontFamily: "inherit",
+    padding: "8px 16px", border: `1px solid ${border2}`, borderRadius: 8, cursor: "pointer",
+    fontSize: 13, fontWeight: 500, background: surface2, color: textSecondary,
+    transition: "all 0.15s", fontFamily: "inherit",
   };
-  const btnBrand = { ...btn, background: brand, color: "#fff", border: `1px solid ${brand}` };
-  const btnGreen = { ...btn, background: green, color: "#fff", border: `1px solid ${green}` };
-  const btnRed = { ...btn, border: `1px solid ${red}`, color: red };
-  const btnSm = { ...btn, padding: "4px 10px", fontSize: 12 };
-  const btnBrandSm = { ...btnSm, background: brand, color: "#fff", border: `1px solid ${brand}` };
+  const btnBrand = { ...btn, background: `linear-gradient(135deg, ${brand}, ${brandDark})`, color: "#fff", border: "none", boxShadow: `0 0 20px ${brand}44` };
+  const btnGreen = { ...btn, background: `linear-gradient(135deg, ${green}, #059669)`, color: "#fff", border: "none" };
+  const btnRed = { ...btn, background: redLight, border: `1px solid ${red}44`, color: red };
+  const btnSm = { ...btn, padding: "5px 12px", fontSize: 12 };
+  const btnBrandSm = { ...btnSm, background: `linear-gradient(135deg, ${brand}, ${brandDark})`, color: "#fff", border: "none", boxShadow: `0 0 12px ${brand}44` };
 
   const input = {
-    width: "100%", padding: "7px 10px", border: "0.5px solid #ddd", borderRadius: 8,
-    fontSize: 13, background: "#f9f9f9", color: "#111", fontFamily: "inherit", boxSizing: "border-box",
+    width: "100%", padding: "9px 12px", border: `1px solid ${border}`, borderRadius: 8,
+    fontSize: 13, background: surface2, color: textPrimary, fontFamily: "inherit",
+    boxSizing: "border-box", outline: "none", transition: "border-color 0.15s",
   };
   const select = { ...input, width: "auto" };
 
@@ -130,9 +141,7 @@ export default function App() {
   const pendingApprovals = approvals.filter((a) => a.status === "Pending").length;
   const shortAddress = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "";
 
-  function connectWallet() {
-    if (openConnectModal) openConnectModal();
-  }
+  function connectWallet() { if (openConnectModal) openConnectModal(); }
 
   function openAddModal() {
     setEditingEmployee(null);
@@ -283,66 +292,90 @@ export default function App() {
     { id: "history", label: "History", icon: "◷", badge: history.length },
   ];
 
+  const modal = {
+    position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)",
+    display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100,
+  };
+  const modalBox = {
+    background: surface, borderRadius: 16, padding: 24, width: 400,
+    border: `1px solid ${border}`, boxShadow: `0 0 40px rgba(0,0,0,0.5)`,
+  };
+
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", color: "#111", fontSize: 14, background: "#f5f5f5", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-      <div style={{ display: "flex", width: "100%", maxWidth: 1100, height: 680, border: "0.5px solid #e5e7eb", borderRadius: 16, overflow: "hidden", background: "#fff", boxShadow: "0 4px 32px rgba(0,0,0,0.08)" }}>
+    <div style={{ fontFamily: "'Inter', system-ui, sans-serif", color: textPrimary, fontSize: 14, background: bg, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+      <div style={{ display: "flex", width: "100%", maxWidth: 1100, height: 700, border: `1px solid ${border}`, borderRadius: 20, overflow: "hidden", background: surface, boxShadow: "0 8px 60px rgba(0,0,0,0.6)" }}>
 
         {/* Sidebar */}
-        <div style={{ width: 210, borderRight: "0.5px solid #e5e7eb", background: "#fafafa", display: "flex", flexDirection: "column", padding: "16px 0" }}>
-          <div style={{ padding: "0 16px 16px", borderBottom: "0.5px solid #e5e7eb", marginBottom: 8, display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 10, background: brand, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 16 }}>⬡</div>
-            <div><div style={{ fontSize: 15, fontWeight: 500 }}>PayChain</div><div style={{ fontSize: 11, color: "#9ca3af", marginTop: 1 }}>Crypto Payroll</div></div>
+        <div style={{ width: 220, borderRight: `1px solid ${border}`, background: "#0D0D14", display: "flex", flexDirection: "column", padding: "16px 0" }}>
+          <div style={{ padding: "0 16px 16px", borderBottom: `1px solid ${border}`, marginBottom: 8, display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ width: 34, height: 34, borderRadius: 10, background: `linear-gradient(135deg, ${brand}, ${brandDark})`, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 18, boxShadow: `0 0 16px ${brand}66` }}>⬡</div>
+            <div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: textPrimary, letterSpacing: "-0.01em" }}>PayChain</div>
+              <div style={{ fontSize: 10, color: textMuted, marginTop: 1, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>Crypto Payroll</div>
+            </div>
           </div>
           {navItems.map((item) => (
             <div key={item.id} onClick={() => setPage(item.id)}
-              style={{ padding: "9px 16px", cursor: "pointer", display: "flex", alignItems: "center", gap: 10, fontSize: 13, margin: "1px 8px", borderRadius: 8, background: page === item.id ? brandLight : "transparent", color: page === item.id ? brand : "#6b7280", fontWeight: page === item.id ? 500 : 400, transition: "all 0.15s" }}>
-              <div style={{ width: 22, height: 22, borderRadius: 6, background: page === item.id ? brand : "#e5e7eb", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: page === item.id ? "#fff" : "#6b7280" }}>{item.icon}</div>
+              style={{ padding: "9px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: 10, fontSize: 13, margin: "2px 8px", borderRadius: 10, background: page === item.id ? `linear-gradient(135deg, ${brand}22, ${brandDark}11)` : "transparent", color: page === item.id ? brand : textSecondary, fontWeight: page === item.id ? 600 : 400, border: page === item.id ? `1px solid ${brand}33` : "1px solid transparent", transition: "all 0.15s" }}>
+              <div style={{ width: 24, height: 24, borderRadius: 7, background: page === item.id ? `linear-gradient(135deg, ${brand}, ${brandDark})` : surface2, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: page === item.id ? "#fff" : textMuted, boxShadow: page === item.id ? `0 0 10px ${brand}66` : "none" }}>{item.icon}</div>
               {item.label}
-              {item.badge > 0 && <span style={{ marginLeft: "auto", background: item.id === "approvals" ? red : brand, color: "#fff", fontSize: 10, padding: "1px 7px", borderRadius: 20 }}>{item.badge}</span>}
+              {item.badge > 0 && <span style={{ marginLeft: "auto", background: item.id === "approvals" ? red : brand, color: "#fff", fontSize: 10, padding: "1px 7px", borderRadius: 20, fontWeight: 600 }}>{item.badge}</span>}
             </div>
           ))}
+
+          {/* Bottom wallet status */}
+          <div style={{ marginTop: "auto", padding: "12px 16px", borderTop: `1px solid ${border}` }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ width: 8, height: 8, borderRadius: "50%", background: isConnected ? green : border2, boxShadow: isConnected ? `0 0 8px ${green}` : "none" }}></div>
+              <div style={{ fontSize: 11, color: isConnected ? green : textMuted, fontWeight: 500 }}>{isConnected ? shortAddress : "Not connected"}</div>
+            </div>
+          </div>
         </div>
 
         {/* Main */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minWidth: 0 }}>
           {/* Topbar */}
-          <div style={{ padding: "12px 20px", borderBottom: "0.5px solid #e5e7eb", display: "flex", alignItems: "center", justifyContent: "space-between", background: "#fff" }}>
-            <span style={{ fontSize: 15, fontWeight: 500 }}>{{ wallet: "Wallet connect", employees: "Employees", payout: "Run payroll", approvals: "Approvals", history: "History" }[page]}</span>
+          <div style={{ padding: "14px 24px", borderBottom: `1px solid ${border}`, display: "flex", alignItems: "center", justifyContent: "space-between", background: surface }}>
+            <div>
+              <span style={{ fontSize: 16, fontWeight: 700, color: textPrimary, letterSpacing: "-0.01em" }}>{{ wallet: "Wallet connect", employees: "Employees", payout: "Run payroll", approvals: "Approvals", history: "History" }[page]}</span>
+            </div>
             <div onClick={isConnected ? () => disconnect() : connectWallet}
-              style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", border: isConnected ? `0.5px solid ${green}` : "0.5px solid #e5e7eb", borderRadius: 20, cursor: "pointer", fontSize: 12, background: isConnected ? greenLight : "transparent", color: isConnected ? green : "#6b7280", transition: "all 0.15s" }}>
-              <span style={{ width: 7, height: 7, borderRadius: "50%", background: isConnected ? green : "#d1d5db", display: "inline-block" }}></span>
-              {isConnected ? shortAddress : "Not connected"}
+              style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 14px", border: isConnected ? `1px solid ${green}44` : `1px solid ${border2}`, borderRadius: 20, cursor: "pointer", fontSize: 12, fontWeight: 500, background: isConnected ? `${green}11` : surface2, color: isConnected ? green : textSecondary, transition: "all 0.15s" }}>
+              <span style={{ width: 7, height: 7, borderRadius: "50%", background: isConnected ? green : border2, display: "inline-block", boxShadow: isConnected ? `0 0 6px ${green}` : "none" }}></span>
+              {isConnected ? shortAddress : "Connect wallet"}
             </div>
           </div>
 
           {/* Content */}
-          <div style={{ flex: 1, overflowY: "auto", padding: 20, position: "relative" }}>
+          <div style={{ flex: 1, overflowY: "auto", padding: 24, background: bg }}>
 
             {/* WALLET PAGE */}
             {page === "wallet" && (
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: 8 }}>
-                <div style={{ width: 52, height: 52, borderRadius: 16, background: brand, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, marginBottom: 8 }}>⬡</div>
-                <div style={{ fontSize: 19, fontWeight: 500, marginBottom: 4 }}>Connect treasury wallet</div>
-                <div style={{ fontSize: 13, color: "#6b7280", marginBottom: 20, textAlign: "center", maxWidth: 300 }}>Connect the wallet holding your company USDT/USDC to authorize payroll</div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, width: 360 }}>
+                <div style={{ width: 60, height: 60, borderRadius: 18, background: `linear-gradient(135deg, ${brand}, ${brandDark})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 30, marginBottom: 12, boxShadow: `0 0 30px ${brand}66` }}>⬡</div>
+                <div style={{ fontSize: 22, fontWeight: 700, color: textPrimary, letterSpacing: "-0.02em", marginBottom: 6 }}>Connect treasury wallet</div>
+                <div style={{ fontSize: 13, color: textSecondary, marginBottom: 28, textAlign: "center", maxWidth: 320, lineHeight: 1.6 }}>Connect the wallet holding your company USDT/USDC to authorize payroll</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, width: 380 }}>
                   {[{ name: "MetaMask", icon: "🦊", chain: "EVM chains" }, { name: "Rabby", icon: "🐰", chain: "EVM chains" }, { name: "Phantom", icon: "👻", chain: "Solana + EVM" }, { name: "WalletConnect", icon: "🔗", chain: "Any wallet" }].map((w) => (
                     <div key={w.name} onClick={() => connectWallet()}
-                      style={{ padding: "14px 16px", border: `0.5px solid ${isConnected ? brand : "#e5e7eb"}`, borderRadius: 10, cursor: "pointer", display: "flex", alignItems: "center", gap: 10, background: isConnected ? brandLight : "#fff", transition: "all 0.15s" }}>
-                      <div style={{ width: 36, height: 36, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, background: "#f3f4f6" }}>{w.icon}</div>
-                      <div><div style={{ fontSize: 13, fontWeight: 500 }}>{w.name}</div><div style={{ fontSize: 11, color: "#9ca3af" }}>{w.chain}</div></div>
+                      style={{ padding: "16px", border: `1px solid ${isConnected ? brand + "44" : border}`, borderRadius: 12, cursor: "pointer", display: "flex", alignItems: "center", gap: 12, background: isConnected ? `${brand}11` : surface, transition: "all 0.2s" }}
+                      onMouseEnter={e => e.currentTarget.style.borderColor = brand}
+                      onMouseLeave={e => e.currentTarget.style.borderColor = isConnected ? brand + "44" : border}>
+                      <div style={{ width: 38, height: 38, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, background: surface2 }}>{w.icon}</div>
+                      <div><div style={{ fontSize: 13, fontWeight: 600, color: textPrimary }}>{w.name}</div><div style={{ fontSize: 11, color: textMuted }}>{w.chain}</div></div>
                     </div>
                   ))}
                 </div>
                 {isConnected && (
-                  <div style={{ marginTop: 20, padding: "14px 18px", border: `0.5px solid #c4b5fd`, borderRadius: 12, width: 360, background: brandLight }}>
-                    <div style={{ fontSize: 12, color: brandDark, marginBottom: 8, fontWeight: 500 }}>Connected wallet</div>
-                    <div style={{ fontFamily: "monospace", fontSize: 12, marginBottom: 10, color: brand }}>{address}</div>
-                    <div style={{ display: "flex", gap: 20, marginBottom: 12 }}>
-                      <div><div style={{ fontSize: 10, color: brandDark, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>Network</div><div style={{ fontSize: 16, fontWeight: 500, color: brandDark }}>Base</div></div>
-                      <div><div style={{ fontSize: 10, color: brandDark, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>Status</div><div style={{ fontSize: 16, fontWeight: 500, color: green }}>Connected ✓</div></div>
+                  <div style={{ marginTop: 24, padding: "18px 20px", border: `1px solid ${brand}44`, borderRadius: 16, width: 380, background: `linear-gradient(135deg, ${brandLight}66, ${bg})`, boxShadow: `0 0 30px ${brand}22` }}>
+                    <div style={{ fontSize: 11, color: brand, marginBottom: 8, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>Connected wallet</div>
+                    <div style={{ fontFamily: "monospace", fontSize: 12, marginBottom: 14, color: textSecondary, wordBreak: "break-all" }}>{address}</div>
+                    <div style={{ display: "flex", gap: 24, marginBottom: 16 }}>
+                      <div><div style={{ fontSize: 10, color: textMuted, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Network</div><div style={{ fontSize: 15, fontWeight: 700, color: textPrimary }}>Base</div></div>
+                      <div><div style={{ fontSize: 10, color: textMuted, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Status</div><div style={{ fontSize: 15, fontWeight: 700, color: green }}>Connected ✓</div></div>
                     </div>
                     <button onClick={() => disconnect()}
-                      style={{ width: "100%", padding: "8px", border: `1px solid ${red}`, borderRadius: 8, cursor: "pointer", background: redLight, color: red, fontSize: 13, fontFamily: "inherit", fontWeight: 500 }}>
+                      style={{ width: "100%", padding: "10px", border: `1px solid ${red}44`, borderRadius: 10, cursor: "pointer", background: redLight, color: red, fontSize: 13, fontFamily: "inherit", fontWeight: 600, transition: "all 0.15s" }}>
                       Disconnect wallet
                     </button>
                   </div>
@@ -353,84 +386,116 @@ export default function App() {
             {/* EMPLOYEES PAGE */}
             {page === "employees" && (
               <div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
-                  <input style={{ ...input, width: 160 }} placeholder="Search..." value={searchQ} onChange={(e) => setSearchQ(e.target.value)} />
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
+                  <input style={{ ...input, width: 180 }} placeholder="Search employees..." value={searchQ} onChange={(e) => setSearchQ(e.target.value)} />
                   {["All", ...CHAINS.slice(0, 3)].map((c) => (
                     <button key={c} onClick={() => setChainFilter(c)}
-                      style={{ ...btnSm, borderRadius: 20, background: chainFilter === c ? brand : "transparent", color: chainFilter === c ? "#fff" : "#6b7280", border: chainFilter === c ? `0.5px solid ${brand}` : "0.5px solid #e5e7eb" }}>{c}</button>
+                      style={{ ...btnSm, borderRadius: 20, background: chainFilter === c ? brand : surface2, color: chainFilter === c ? "#fff" : textSecondary, border: chainFilter === c ? "none" : `1px solid ${border}`, boxShadow: chainFilter === c ? `0 0 10px ${brand}44` : "none" }}>{c}</button>
                   ))}
-                  <div style={{ marginLeft: "auto", display: "flex", gap: 6 }}>
+                  <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
                     <button style={btnSm} onClick={() => setShowCsvModal(true)}>CSV import</button>
                     <button style={btnBrandSm} onClick={openAddModal}>+ Add employee</button>
                   </div>
                 </div>
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                  <thead><tr>{["Name", "Email", "Wallet", "Chain", "Salary", ""].map((h) => <th key={h} style={{ fontSize: 11, color: "#6b7280", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", padding: "8px 10px", borderBottom: "0.5px solid #e5e7eb", textAlign: "left" }}>{h}</th>)}</tr></thead>
-                  <tbody>
-                    {filteredEmployees.map((e) => (
-                      <tr key={e.id}>
-                        <td style={{ padding: "9px 10px", borderBottom: "0.5px solid #f3f4f6", fontWeight: 500 }}>{e.name}</td>
-                        <td style={{ padding: "9px 10px", borderBottom: "0.5px solid #f3f4f6", color: "#6b7280", fontSize: 12 }}>{e.email}</td>
-                        <td style={{ padding: "9px 10px", borderBottom: "0.5px solid #f3f4f6", fontFamily: "monospace", fontSize: 11, color: "#6b7280" }}>{e.addr}</td>
-                        <td style={{ padding: "9px 10px", borderBottom: "0.5px solid #f3f4f6" }}><ChainBadge chain={e.chain} /></td>
-                        <td style={{ padding: "9px 10px", borderBottom: "0.5px solid #f3f4f6", fontWeight: 500, color: green }}>{e.salary ? `$${e.salary.toLocaleString()}` : <span style={{ color: "#d1d5db" }}>—</span>}</td>
-                        <td style={{ padding: "9px 10px", borderBottom: "0.5px solid #f3f4f6" }}><button style={btnSm} onClick={() => openEditModal(e)}>Edit</button></td>
+                <div style={{ background: surface, borderRadius: 12, border: `1px solid ${border}`, overflow: "hidden" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                    <thead>
+                      <tr style={{ background: surface2 }}>
+                        {["Name", "Email", "Wallet", "Chain", "Salary", ""].map((h) => (
+                          <th key={h} style={{ fontSize: 11, color: textMuted, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", padding: "12px 14px", borderBottom: `1px solid ${border}`, textAlign: "left" }}>{h}</th>
+                        ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {filteredEmployees.map((e, idx) => (
+                        <tr key={e.id} style={{ borderBottom: idx < filteredEmployees.length - 1 ? `1px solid ${border}` : "none" }}
+                          onMouseEnter={el => el.currentTarget.style.background = surface2}
+                          onMouseLeave={el => el.currentTarget.style.background = "transparent"}>
+                          <td style={{ padding: "12px 14px", fontWeight: 600, color: textPrimary }}>{e.name}</td>
+                          <td style={{ padding: "12px 14px", color: textSecondary, fontSize: 12 }}>{e.email}</td>
+                          <td style={{ padding: "12px 14px", fontFamily: "monospace", fontSize: 11, color: textMuted }}>{e.addr}</td>
+                          <td style={{ padding: "12px 14px" }}><ChainBadge chain={e.chain} /></td>
+                          <td style={{ padding: "12px 14px", fontWeight: 600, color: green }}>{e.salary ? `$${e.salary.toLocaleString()}` : <span style={{ color: textMuted }}>—</span>}</td>
+                          <td style={{ padding: "12px 14px" }}><button style={btnSm} onClick={() => openEditModal(e)}>Edit</button></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
 
             {/* PAYOUT PAGE */}
             {page === "payout" && (
               <div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12, marginBottom: 20 }}>
-                  <div style={{ background: brandLight, borderRadius: 12, padding: "14px 16px" }}><div style={{ fontSize: 11, color: brandDark, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Selected</div><div style={{ fontSize: 22, fontWeight: 500, color: brandDark }}>{selectedCount}</div><div style={{ fontSize: 11, color: brandDark, opacity: 0.6, marginTop: 2 }}>employees</div></div>
-                  <div style={{ background: greenLight, borderRadius: 12, padding: "14px 16px" }}><div style={{ fontSize: 11, color: green, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Total payout</div><div style={{ fontSize: 22, fontWeight: 500, color: green }}>${totalPayout.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div><div style={{ fontSize: 11, color: green, opacity: 0.6, marginTop: 2 }}>{globalToken}</div></div>
-                  <div style={{ background: blueLight, borderRadius: 12, padding: "14px 16px" }}><div style={{ fontSize: 11, color: blue, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Treasury</div><div style={{ fontSize: 22, fontWeight: 500, color: blue }}>{isConnected ? "Connected" : "—"}</div><div style={{ fontSize: 11, color: blue, opacity: 0.6, marginTop: 2 }}>{isConnected ? shortAddress : "Connect wallet"}</div></div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14, marginBottom: 24 }}>
+                  <div style={{ background: `linear-gradient(135deg, ${brandLight}, ${bg})`, borderRadius: 14, padding: "16px 18px", border: `1px solid ${brand}44`, position: "relative", overflow: "hidden" }}>
+                    <div style={{ position: "absolute", top: -20, right: -20, width: 80, height: 80, borderRadius: "50%", background: brand, opacity: 0.15, filter: "blur(20px)" }}></div>
+                    <div style={{ fontSize: 11, color: brand, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>Selected</div>
+                    <div style={{ fontSize: 26, fontWeight: 700, color: textPrimary }}>{selectedCount}</div>
+                    <div style={{ fontSize: 11, color: textMuted, marginTop: 2 }}>employees</div>
+                  </div>
+                  <div style={{ background: `linear-gradient(135deg, ${greenLight}, ${bg})`, borderRadius: 14, padding: "16px 18px", border: `1px solid ${green}44`, position: "relative", overflow: "hidden" }}>
+                    <div style={{ position: "absolute", top: -20, right: -20, width: 80, height: 80, borderRadius: "50%", background: green, opacity: 0.15, filter: "blur(20px)" }}></div>
+                    <div style={{ fontSize: 11, color: green, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>Total payout</div>
+                    <div style={{ fontSize: 26, fontWeight: 700, color: textPrimary }}>${totalPayout.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                    <div style={{ fontSize: 11, color: textMuted, marginTop: 2 }}>{globalToken}</div>
+                  </div>
+                  <div style={{ background: `linear-gradient(135deg, ${blueLight}, ${bg})`, borderRadius: 14, padding: "16px 18px", border: `1px solid ${blue}44`, position: "relative", overflow: "hidden" }}>
+                    <div style={{ position: "absolute", top: -20, right: -20, width: 80, height: 80, borderRadius: "50%", background: blue, opacity: 0.15, filter: "blur(20px)" }}></div>
+                    <div style={{ fontSize: 11, color: blue, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>Treasury</div>
+                    <div style={{ fontSize: 26, fontWeight: 700, color: textPrimary }}>{isConnected ? "Connected" : "—"}</div>
+                    <div style={{ fontSize: 11, color: textMuted, marginTop: 2 }}>{isConnected ? shortAddress : "Connect wallet"}</div>
+                  </div>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14, flexWrap: "wrap" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
                   <select style={{ ...select }} value={globalToken} onChange={(e) => setGlobalToken(e.target.value)}>{TOKENS.map((t) => <option key={t}>{t}</option>)}</select>
                   {["All", "ERC20", "BEP20", "Polygon"].map((f) => (
                     <button key={f} onClick={() => setPayFilter(f)}
-                      style={{ ...btnSm, borderRadius: 20, background: payFilter === f ? brand : "transparent", color: payFilter === f ? "#fff" : "#6b7280", border: payFilter === f ? `0.5px solid ${brand}` : "0.5px solid #e5e7eb" }}>{f}</button>
+                      style={{ ...btnSm, borderRadius: 20, background: payFilter === f ? brand : surface2, color: payFilter === f ? "#fff" : textSecondary, border: payFilter === f ? "none" : `1px solid ${border}` }}>{f}</button>
                   ))}
-                  <div style={{ marginLeft: "auto", display: "flex", gap: 6 }}>
-                    <button style={{ ...btnSm, color: "#6b7280" }} onClick={loadPresets}>Load presets</button>
+                  <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+                    <button style={{ ...btnSm, color: textMuted }} onClick={loadPresets}>Load presets</button>
                     <button style={btnSm} onClick={() => setShowSetAllModal(true)}>Set all</button>
                   </div>
                 </div>
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                  <thead><tr>
-                    <th style={{ padding: "8px 10px", borderBottom: "0.5px solid #e5e7eb", textAlign: "left" }}><input type="checkbox" onChange={(e) => { const s = {}; if (e.target.checked) payFilteredEmployees.forEach((emp) => s[emp.id] = true); setSelectedEmployees(s); }} style={{ accentColor: brand }} /></th>
-                    {["Name", "Wallet", "Chain", "Token", "Amount"].map((h) => <th key={h} style={{ fontSize: 11, color: "#6b7280", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", padding: "8px 10px", borderBottom: "0.5px solid #e5e7eb", textAlign: "left" }}>{h}</th>)}
-                  </tr></thead>
-                  <tbody>
-                    {payFilteredEmployees.map((e) => (
-                      <tr key={e.id}>
-                        <td style={{ padding: "9px 10px", borderBottom: "0.5px solid #f3f4f6" }}><input type="checkbox" checked={!!selectedEmployees[e.id]} onChange={(ev) => setSelectedEmployees({ ...selectedEmployees, [e.id]: ev.target.checked })} style={{ accentColor: brand }} /></td>
-                        <td style={{ padding: "9px 10px", borderBottom: "0.5px solid #f3f4f6", fontWeight: 500 }}>
-                          {e.name}
-                          {e.salary && <button onClick={() => { setPayAmounts({ ...payAmounts, [e.id]: e.salary }); setSelectedEmployees({ ...selectedEmployees, [e.id]: true }); }}
-                            style={{ fontSize: 10, padding: "2px 7px", border: `0.5px solid ${brand}`, borderRadius: 20, cursor: "pointer", background: "transparent", color: brand, marginLeft: 5 }}>${e.salary.toLocaleString()}</button>}
-                        </td>
-                        <td style={{ padding: "9px 10px", borderBottom: "0.5px solid #f3f4f6", fontFamily: "monospace", fontSize: 11, color: "#6b7280" }}>{e.addr}</td>
-                        <td style={{ padding: "9px 10px", borderBottom: "0.5px solid #f3f4f6" }}><ChainBadge chain={e.chain} /></td>
-                        <td style={{ padding: "9px 10px", borderBottom: "0.5px solid #f3f4f6" }}>
-                          <select value={payTokens[e.id] || globalToken} onChange={(ev) => setPayTokens({ ...payTokens, [e.id]: ev.target.value })} style={{ ...select, padding: "4px 6px", fontSize: 11 }}>{TOKENS.map((t) => <option key={t}>{t}</option>)}</select>
-                        </td>
-                        <td style={{ padding: "9px 10px", borderBottom: "0.5px solid #f3f4f6" }}>
-                          <input type="number" placeholder="0.00" value={payAmounts[e.id] || ""} onChange={(ev) => setPayAmounts({ ...payAmounts, [e.id]: ev.target.value })}
-                            style={{ ...input, width: 90, padding: "5px 8px" }} />
-                        </td>
+                <div style={{ background: surface, borderRadius: 12, border: `1px solid ${border}`, overflow: "hidden", marginBottom: 16 }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                    <thead>
+                      <tr style={{ background: surface2 }}>
+                        <th style={{ padding: "12px 14px", borderBottom: `1px solid ${border}`, textAlign: "left" }}><input type="checkbox" onChange={(e) => { const s = {}; if (e.target.checked) payFilteredEmployees.forEach((emp) => s[emp.id] = true); setSelectedEmployees(s); }} style={{ accentColor: brand }} /></th>
+                        {["Name", "Wallet", "Chain", "Token", "Amount"].map((h) => <th key={h} style={{ fontSize: 11, color: textMuted, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", padding: "12px 14px", borderBottom: `1px solid ${border}`, textAlign: "left" }}>{h}</th>)}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <div style={{ marginTop: 16, padding: "14px 16px", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "space-between", background: brandLight, border: `0.5px solid #c4b5fd` }}>
-                  <div><div style={{ fontSize: 12, color: brandDark, fontWeight: 500 }}>Total to disburse</div><div style={{ fontSize: 22, fontWeight: 500, color: brandDark }}>${totalPayout.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div></div>
-                  <div style={{ display: "flex", gap: 8 }}>
+                    </thead>
+                    <tbody>
+                      {payFilteredEmployees.map((e, idx) => (
+                        <tr key={e.id} style={{ borderBottom: idx < payFilteredEmployees.length - 1 ? `1px solid ${border}` : "none" }}>
+                          <td style={{ padding: "12px 14px" }}><input type="checkbox" checked={!!selectedEmployees[e.id]} onChange={(ev) => setSelectedEmployees({ ...selectedEmployees, [e.id]: ev.target.checked })} style={{ accentColor: brand }} /></td>
+                          <td style={{ padding: "12px 14px", fontWeight: 600, color: textPrimary }}>
+                            {e.name}
+                            {e.salary && <button onClick={() => { setPayAmounts({ ...payAmounts, [e.id]: e.salary }); setSelectedEmployees({ ...selectedEmployees, [e.id]: true }); }}
+                              style={{ fontSize: 10, padding: "2px 7px", border: `1px solid ${brand}44`, borderRadius: 20, cursor: "pointer", background: `${brand}22`, color: brand, marginLeft: 6, fontFamily: "inherit" }}>${e.salary.toLocaleString()}</button>}
+                          </td>
+                          <td style={{ padding: "12px 14px", fontFamily: "monospace", fontSize: 11, color: textMuted }}>{e.addr}</td>
+                          <td style={{ padding: "12px 14px" }}><ChainBadge chain={e.chain} /></td>
+                          <td style={{ padding: "12px 14px" }}>
+                            <select value={payTokens[e.id] || globalToken} onChange={(ev) => setPayTokens({ ...payTokens, [e.id]: ev.target.value })} style={{ ...select, padding: "5px 8px", fontSize: 11 }}>{TOKENS.map((t) => <option key={t}>{t}</option>)}</select>
+                          </td>
+                          <td style={{ padding: "12px 14px" }}>
+                            <input type="number" placeholder="0.00" value={payAmounts[e.id] || ""} onChange={(ev) => setPayAmounts({ ...payAmounts, [e.id]: ev.target.value })}
+                              style={{ ...input, width: 100, padding: "6px 10px" }} />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div style={{ padding: "16px 20px", borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "space-between", background: `linear-gradient(135deg, ${brandLight}, ${bg})`, border: `1px solid ${brand}44` }}>
+                  <div>
+                    <div style={{ fontSize: 11, color: brand, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Total to disburse</div>
+                    <div style={{ fontSize: 26, fontWeight: 700, color: textPrimary }}>${totalPayout.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                  </div>
+                  <div style={{ display: "flex", gap: 10 }}>
                     <button style={btn} onClick={submitForApproval}>Submit for approval</button>
                     <button style={btnBrand} onClick={executePayroll}>Execute payroll →</button>
                   </div>
@@ -441,25 +506,25 @@ export default function App() {
             {/* APPROVALS PAGE */}
             {page === "approvals" && (
               <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-                  <div style={{ fontSize: 13, color: "#6b7280" }}>{pendingApprovals} pending · {approvals.length} total</div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+                  <div style={{ fontSize: 13, color: textSecondary }}>{pendingApprovals} pending · {approvals.length} total</div>
                   <button style={btnSm} onClick={() => setShowSignerModal(true)}>Manage signers</button>
                 </div>
-                {approvals.length === 0 && <div style={{ color: "#9ca3af", fontSize: 13, textAlign: "center", padding: "40px 0" }}>No approval requests yet.</div>}
+                {approvals.length === 0 && <div style={{ color: textMuted, fontSize: 13, textAlign: "center", padding: "60px 0" }}>No approval requests yet.</div>}
                 {approvals.map((a) => (
-                  <div key={a.id} style={{ border: "0.5px solid #e5e7eb", borderRadius: 10, marginBottom: 10, overflow: "hidden" }}>
-                    <div style={{ padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "#fafafa" }}>
-                      <div><div style={{ fontWeight: 500, fontSize: 14 }}>${a.total.toFixed(2)} {a.token} — {a.count} employee(s)</div><div style={{ fontSize: 12, color: "#9ca3af", marginTop: 2 }}>{a.date} at {a.time}</div></div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div key={a.id} style={{ border: `1px solid ${border}`, borderRadius: 14, marginBottom: 12, overflow: "hidden", background: surface }}>
+                    <div style={{ padding: "14px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", background: surface2 }}>
+                      <div><div style={{ fontWeight: 600, fontSize: 14, color: textPrimary }}>${a.total.toFixed(2)} {a.token} — {a.count} employee(s)</div><div style={{ fontSize: 12, color: textMuted, marginTop: 4 }}>{a.date} at {a.time}</div></div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                         <StatusBadge status={a.status} />
                         {a.status === "Pending" && <button style={btnBrandSm} onClick={() => { setReviewingId(a.id); setShowReviewModal(true); }}>Review →</button>}
                       </div>
                     </div>
-                    <div style={{ padding: "12px 16px", borderTop: "0.5px solid #e5e7eb" }}>
+                    <div style={{ padding: "14px 18px" }}>
                       {a.signerStatuses.map((s) => (
-                        <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: "0.5px solid #f3f4f6" }}>
-                          <div style={{ width: 30, height: 30, borderRadius: "50%", background: brandLight, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 500, color: brand }}>{s.name.split(" ").map((x) => x[0]).join("").slice(0, 2)}</div>
-                          <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 500 }}>{s.name}</div><div style={{ fontFamily: "monospace", fontSize: 11, color: "#6b7280" }}>{s.addr}</div></div>
+                        <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: `1px solid ${border}` }}>
+                          <div style={{ width: 32, height: 32, borderRadius: "50%", background: `${brand}22`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: brand }}>{s.name.split(" ").map((x) => x[0]).join("").slice(0, 2)}</div>
+                          <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 600, color: textPrimary }}>{s.name}</div><div style={{ fontFamily: "monospace", fontSize: 11, color: textMuted }}>{s.addr}</div></div>
                           <StatusBadge status={s.status} />
                         </div>
                       ))}
@@ -472,31 +537,31 @@ export default function App() {
             {/* HISTORY PAGE */}
             {page === "history" && (
               <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-                  <div style={{ fontSize: 13, color: "#6b7280" }}>{history.length} run(s) · ${history.reduce((s, r) => s + r.total, 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} total disbursed</div>
-                  <div style={{ display: "flex", gap: 6 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+                  <div style={{ fontSize: 13, color: textSecondary }}>{history.length} run(s) · ${history.reduce((s, r) => s + r.total, 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} total disbursed</div>
+                  <div style={{ display: "flex", gap: 8 }}>
                     <button style={btnSm} onClick={exportCSV}>Export CSV</button>
                     <button style={btnBrandSm} onClick={exportPDF}>Export PDF</button>
                   </div>
                 </div>
-                {history.length === 0 && <div style={{ color: "#9ca3af", fontSize: 13, textAlign: "center", padding: "40px 0" }}>No payroll runs yet.</div>}
+                {history.length === 0 && <div style={{ color: textMuted, fontSize: 13, textAlign: "center", padding: "60px 0" }}>No payroll runs yet.</div>}
                 {history.map((r) => (
-                  <div key={r.id} style={{ border: "0.5px solid #e5e7eb", borderRadius: 10, marginBottom: 10, overflow: "hidden" }}>
+                  <div key={r.id} style={{ border: `1px solid ${border}`, borderRadius: 14, marginBottom: 12, overflow: "hidden", background: surface }}>
                     <div onClick={() => setExpandedRun(expandedRun === r.id ? null : r.id)}
-                      style={{ padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "#fafafa", cursor: "pointer" }}>
-                      <div><div style={{ fontWeight: 500, fontSize: 14 }}>Run #{r.id} — <span style={{ color: green }}>${r.total.toFixed(2)} {r.token}</span></div><div style={{ fontSize: 12, color: "#9ca3af", marginTop: 2 }}>{r.date} at {r.time} · {r.count} employee(s)</div></div>
+                      style={{ padding: "14px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", background: surface2, cursor: "pointer" }}>
+                      <div><div style={{ fontWeight: 600, fontSize: 14, color: textPrimary }}>Run #{r.id} — <span style={{ color: green }}>${r.total.toFixed(2)} {r.token}</span></div><div style={{ fontSize: 12, color: textMuted, marginTop: 4 }}>{r.date} at {r.time} · {r.count} employee(s)</div></div>
                       <StatusBadge status={r.status} />
                     </div>
                     {expandedRun === r.id && (
-                      <div style={{ padding: "0 16px 12px", borderTop: "0.5px solid #e5e7eb" }}>
-                        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 10 }}>
-                          <thead><tr>{["Name", "Wallet", "Chain", "Amount"].map((h) => <th key={h} style={{ fontSize: 11, color: "#6b7280", fontWeight: 500, textTransform: "uppercase", padding: "6px 8px", borderBottom: "0.5px solid #e5e7eb", textAlign: "left" }}>{h}</th>)}</tr></thead>
+                      <div style={{ padding: "0 18px 14px" }}>
+                        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 12 }}>
+                          <thead><tr>{["Name", "Wallet", "Chain", "Amount"].map((h) => <th key={h} style={{ fontSize: 11, color: textMuted, fontWeight: 600, textTransform: "uppercase", padding: "8px 10px", borderBottom: `1px solid ${border}`, textAlign: "left" }}>{h}</th>)}</tr></thead>
                           <tbody>{r.items.map((i, idx) => (
                             <tr key={idx}>
-                              <td style={{ padding: "8px", fontWeight: 500 }}>{i.name}</td>
-                              <td style={{ padding: "8px", fontFamily: "monospace", fontSize: 11, color: "#6b7280" }}>{i.addr}</td>
-                              <td style={{ padding: "8px" }}><ChainBadge chain={i.chain} /></td>
-                              <td style={{ padding: "8px", color: green, fontWeight: 500 }}>${i.amt.toFixed(2)} {i.token}</td>
+                              <td style={{ padding: "10px", fontWeight: 600, color: textPrimary }}>{i.name}</td>
+                              <td style={{ padding: "10px", fontFamily: "monospace", fontSize: 11, color: textMuted }}>{i.addr}</td>
+                              <td style={{ padding: "10px" }}><ChainBadge chain={i.chain} /></td>
+                              <td style={{ padding: "10px", color: green, fontWeight: 600 }}>${i.amt.toFixed(2)} {i.token}</td>
                             </tr>
                           ))}</tbody>
                         </table>
@@ -513,20 +578,20 @@ export default function App() {
 
       {/* ADD EMPLOYEE MODAL */}
       {showAddModal && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
-          <div style={{ background: "#fff", borderRadius: 16, padding: 24, width: 400, border: "0.5px solid #e5e7eb" }}>
-            <div style={{ fontSize: 15, fontWeight: 500, marginBottom: 16 }}>{editingEmployee ? "Edit employee" : "Add employee"}</div>
+        <div style={modal}>
+          <div style={modalBox}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: textPrimary, marginBottom: 20 }}>{editingEmployee ? "Edit employee" : "Add employee"}</div>
             {[["Full name", "name", "text", "Sarah Chen"], ["Email", "email", "email", "sarah@company.com"], ["Wallet address", "addr", "text", "0x..."], ["Monthly salary preset (USD) — optional", "salary", "number", "3500"]].map(([label, field, type, ph]) => (
-              <div key={field} style={{ marginBottom: 12 }}>
-                <label style={{ display: "block", fontSize: 12, color: "#6b7280", marginBottom: 4 }}>{label}</label>
+              <div key={field} style={{ marginBottom: 14 }}>
+                <label style={{ display: "block", fontSize: 12, color: textMuted, marginBottom: 6, fontWeight: 500 }}>{label}</label>
                 <input type={type} placeholder={ph} value={formData[field]} onChange={(e) => setFormData({ ...formData, [field]: e.target.value })} style={input} />
               </div>
             ))}
-            <div style={{ marginBottom: 12 }}>
-              <label style={{ display: "block", fontSize: 12, color: "#6b7280", marginBottom: 4 }}>Chain</label>
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ display: "block", fontSize: 12, color: textMuted, marginBottom: 6, fontWeight: 500 }}>Chain</label>
               <select value={formData.chain} onChange={(e) => setFormData({ ...formData, chain: e.target.value })} style={{ ...input }}>{CHAINS.map((c) => <option key={c}>{c}</option>)}</select>
             </div>
-            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 16 }}>
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 20 }}>
               <button style={btn} onClick={() => setShowAddModal(false)}>Cancel</button>
               <button style={btnBrand} onClick={saveEmployee}>Save employee</button>
             </div>
@@ -536,17 +601,17 @@ export default function App() {
 
       {/* CSV MODAL */}
       {showCsvModal && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
-          <div style={{ background: "#fff", borderRadius: 16, padding: 24, width: 400, border: "0.5px solid #e5e7eb" }}>
-            <div style={{ fontSize: 15, fontWeight: 500, marginBottom: 8 }}>CSV import</div>
-            <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 12 }}>Columns: <code style={{ background: "#f3f4f6", padding: "2px 6px", borderRadius: 4 }}>name, email, wallet, chain, salary</code></div>
+        <div style={modal}>
+          <div style={modalBox}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: textPrimary, marginBottom: 8 }}>CSV import</div>
+            <div style={{ fontSize: 12, color: textMuted, marginBottom: 14 }}>Columns: <code style={{ background: surface2, padding: "2px 6px", borderRadius: 4, color: brand }}>name, email, wallet, chain, salary</code></div>
             <div onClick={() => setCsvText("name,email,wallet,chain,salary\nAlex Wong,alex@company.com,0xD4E5...1234,ERC20,4200\nFatima Hassan,fatima@company.com,0xB3C4...5678,BEP20,3800")}
-              style={{ border: `1.5px dashed #c4b5fd`, borderRadius: 10, padding: 24, textAlign: "center", cursor: "pointer", color: brand, background: brandLight, marginBottom: 12 }}>
+              style={{ border: `1.5px dashed ${brand}66`, borderRadius: 12, padding: 24, textAlign: "center", cursor: "pointer", color: brand, background: `${brand}11`, marginBottom: 14 }}>
               <div style={{ fontSize: 28, marginBottom: 8 }}>↑</div>
-              <div style={{ fontWeight: 500 }}>Click to load demo CSV</div>
+              <div style={{ fontWeight: 600 }}>Click to load demo CSV</div>
             </div>
             <textarea rows={4} placeholder="Or paste CSV data here..." value={csvText} onChange={(e) => setCsvText(e.target.value)} style={{ ...input, resize: "vertical" }} />
-            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 16 }}>
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 20 }}>
               <button style={btn} onClick={() => setShowCsvModal(false)}>Cancel</button>
               <button style={btnBrand} onClick={importCsv}>Import</button>
             </div>
@@ -556,11 +621,11 @@ export default function App() {
 
       {/* SET ALL MODAL */}
       {showSetAllModal && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
-          <div style={{ background: "#fff", borderRadius: 16, padding: 24, width: 360, border: "0.5px solid #e5e7eb" }}>
-            <div style={{ fontSize: 15, fontWeight: 500, marginBottom: 16 }}>Set amount for all employees</div>
+        <div style={modal}>
+          <div style={{ ...modalBox, width: 360 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: textPrimary, marginBottom: 20 }}>Set amount for all employees</div>
             <input type="number" placeholder="e.g. 3000" value={bulkAmount} onChange={(e) => setBulkAmount(e.target.value)} style={input} />
-            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 16 }}>
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 20 }}>
               <button style={btn} onClick={() => setShowSetAllModal(false)}>Cancel</button>
               <button style={btnGreen} onClick={applyBulk}>Apply to all</button>
             </div>
@@ -570,23 +635,23 @@ export default function App() {
 
       {/* SIGNERS MODAL */}
       {showSignerModal && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
-          <div style={{ background: "#fff", borderRadius: 16, padding: 24, width: 400, border: "0.5px solid #e5e7eb" }}>
-            <div style={{ fontSize: 15, fontWeight: 500, marginBottom: 8 }}>Approval signers</div>
-            <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 12 }}>Payroll submitted for approval requires sign-off from these addresses.</div>
+        <div style={modal}>
+          <div style={modalBox}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: textPrimary, marginBottom: 8 }}>Approval signers</div>
+            <div style={{ fontSize: 12, color: textMuted, marginBottom: 16 }}>Payroll submitted for approval requires sign-off from these addresses.</div>
             {signers.map((s) => (
-              <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: "0.5px solid #f3f4f6" }}>
-                <div style={{ width: 30, height: 30, borderRadius: "50%", background: brandLight, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 500, color: brand }}>{s.name.split(" ").map((x) => x[0]).join("").slice(0, 2)}</div>
-                <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 500 }}>{s.name}</div><div style={{ fontFamily: "monospace", fontSize: 11, color: "#6b7280" }}>{s.addr}</div></div>
-                <button style={{ ...btnSm, border: `0.5px solid ${red}`, color: red }} onClick={() => setSigners(signers.filter((x) => x.id !== s.id))}>Remove</button>
+              <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: `1px solid ${border}` }}>
+                <div style={{ width: 32, height: 32, borderRadius: "50%", background: `${brand}22`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: brand }}>{s.name.split(" ").map((x) => x[0]).join("").slice(0, 2)}</div>
+                <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 600, color: textPrimary }}>{s.name}</div><div style={{ fontFamily: "monospace", fontSize: 11, color: textMuted }}>{s.addr}</div></div>
+                <button style={{ ...btnSm, ...btnRed }} onClick={() => setSigners(signers.filter((x) => x.id !== s.id))}>Remove</button>
               </div>
             ))}
-            <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+            <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
               <input placeholder="Name" value={newSignerName} onChange={(e) => setNewSignerName(e.target.value)} style={{ ...input, flex: 1 }} />
               <input placeholder="0x... or email" value={newSignerAddr} onChange={(e) => setNewSignerAddr(e.target.value)} style={{ ...input, flex: 2 }} />
               <button style={btnBrandSm} onClick={() => { if (!newSignerName || !newSignerAddr) return; setSigners([...signers, { id: nextSignerId, name: newSignerName, addr: newSignerAddr }]); setNextSignerId(nextSignerId + 1); setNewSignerName(""); setNewSignerAddr(""); }}>Add</button>
             </div>
-            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
+            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 20 }}>
               <button style={btnBrand} onClick={() => setShowSignerModal(false)}>Done</button>
             </div>
           </div>
@@ -595,27 +660,26 @@ export default function App() {
 
       {/* REVIEW MODAL */}
       {showReviewModal && (() => { const a = approvals.find((x) => x.id === reviewingId); if (!a) return null; return (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
-          <div style={{ background: "#fff", borderRadius: 16, padding: 24, width: 420, border: "0.5px solid #e5e7eb" }}>
-            <div style={{ fontSize: 15, fontWeight: 500, marginBottom: 16 }}>Review payroll request</div>
+        <div style={modal}>
+          <div style={{ ...modalBox, width: 440 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: textPrimary, marginBottom: 20 }}>Review payroll request</div>
             {[["Date", `${a.date} ${a.time}`], ["Employees", a.count], ["Token", a.token], ["Total", `$${a.total.toFixed(2)}`]].map(([label, val]) => (
-              <div key={label} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, padding: "4px 0" }}>
-                <span style={{ color: "#6b7280" }}>{label}</span>
-                <span style={{ fontWeight: label === "Total" ? 500 : 400, color: label === "Total" ? green : "#111" }}>{val}</span>
+              <div key={label} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, padding: "6px 0", borderBottom: `1px solid ${border}` }}>
+                <span style={{ color: textMuted }}>{label}</span>
+                <span style={{ fontWeight: label === "Total" ? 700 : 500, color: label === "Total" ? green : textPrimary }}>{val}</span>
               </div>
             ))}
-            <div style={{ height: "0.5px", background: "#e5e7eb", margin: "12px 0" }}></div>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead><tr>{["Name", "Chain", "Amount"].map((h) => <th key={h} style={{ fontSize: 11, color: "#6b7280", fontWeight: 500, textTransform: "uppercase", padding: "6px 8px", borderBottom: "0.5px solid #e5e7eb", textAlign: "left" }}>{h}</th>)}</tr></thead>
+            <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 16 }}>
+              <thead><tr>{["Name", "Chain", "Amount"].map((h) => <th key={h} style={{ fontSize: 11, color: textMuted, fontWeight: 600, textTransform: "uppercase", padding: "8px 10px", borderBottom: `1px solid ${border}`, textAlign: "left" }}>{h}</th>)}</tr></thead>
               <tbody>{a.items.map((i, idx) => (
                 <tr key={idx}>
-                  <td style={{ padding: "8px", fontWeight: 500 }}>{i.name}</td>
-                  <td style={{ padding: "8px" }}><ChainBadge chain={i.chain} /></td>
-                  <td style={{ padding: "8px", color: green, fontWeight: 500 }}>${i.amt.toFixed(2)} {i.token}</td>
+                  <td style={{ padding: "10px", fontWeight: 600, color: textPrimary }}>{i.name}</td>
+                  <td style={{ padding: "10px" }}><ChainBadge chain={i.chain} /></td>
+                  <td style={{ padding: "10px", color: green, fontWeight: 600 }}>${i.amt.toFixed(2)} {i.token}</td>
                 </tr>
               ))}</tbody>
             </table>
-            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 16 }}>
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 20 }}>
               <button style={btnRed} onClick={rejectApproval}>Reject</button>
               <button style={btnGreen} onClick={approveAndExecute}>Approve & execute</button>
             </div>
@@ -625,11 +689,11 @@ export default function App() {
 
       {/* EXPORT MODAL */}
       {exportPreview && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
-          <div style={{ background: "#fff", borderRadius: 16, padding: 24, width: 440, border: "0.5px solid #e5e7eb" }}>
-            <div style={{ fontSize: 15, fontWeight: 500, marginBottom: 12 }}>{exportPreview.title}</div>
-            <pre style={{ fontFamily: "monospace", fontSize: 12, background: "#f9f9f9", padding: 12, borderRadius: 8, maxHeight: 300, overflowY: "auto", whiteSpace: "pre-wrap", lineHeight: 1.6 }}>{exportPreview.content}</pre>
-            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 16 }}>
+        <div style={modal}>
+          <div style={{ ...modalBox, width: 460 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: textPrimary, marginBottom: 14 }}>{exportPreview.title}</div>
+            <pre style={{ fontFamily: "monospace", fontSize: 12, background: surface2, padding: 14, borderRadius: 10, maxHeight: 300, overflowY: "auto", whiteSpace: "pre-wrap", lineHeight: 1.6, color: textSecondary }}>{exportPreview.content}</pre>
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 20 }}>
               <button style={btn} onClick={() => setExportPreview(null)}>Close</button>
               <button style={btnBrand} onClick={() => downloadFile(exportPreview.content, exportPreview.filename, exportPreview.type)}>Download</button>
             </div>
@@ -639,12 +703,12 @@ export default function App() {
 
       {/* SUCCESS OVERLAY */}
       {success && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200 }}>
-          <div style={{ background: "#fff", borderRadius: 16, padding: 36, textAlign: "center", width: 340, border: "0.5px solid #e5e7eb" }}>
-            <div style={{ width: 56, height: 56, borderRadius: "50%", background: success.bg, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 26 }}>{success.icon}</div>
-            <div style={{ fontSize: 17, fontWeight: 500, marginBottom: 6, color: success.color }}>{success.title}</div>
-            <div style={{ fontSize: 13, color: "#6b7280" }}>{success.msg}</div>
-            <button style={{ ...btnBrand, marginTop: 22, width: "100%" }} onClick={() => setSuccess(null)}>Done</button>
+        <div style={{ ...modal, backdropFilter: "blur(8px)" }}>
+          <div style={{ ...modalBox, textAlign: "center", width: 360 }}>
+            <div style={{ width: 64, height: 64, borderRadius: "50%", background: success.bg, border: `1px solid ${success.color}44`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", fontSize: 28, boxShadow: `0 0 30px ${success.color}44` }}>{success.icon}</div>
+            <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, color: success.color }}>{success.title}</div>
+            <div style={{ fontSize: 13, color: textSecondary, lineHeight: 1.6 }}>{success.msg}</div>
+            <button style={{ ...btnBrand, marginTop: 24, width: "100%", padding: "12px" }} onClick={() => setSuccess(null)}>Done</button>
           </div>
         </div>
       )}
