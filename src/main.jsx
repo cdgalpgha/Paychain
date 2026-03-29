@@ -7,6 +7,7 @@ import { config } from './wagmi'
 import App from './App.jsx'
 import './index.css'
 import '@rainbow-me/rainbowkit/styles.css'
+import './animations.css'
 
 const queryClient = new QueryClient()
 
