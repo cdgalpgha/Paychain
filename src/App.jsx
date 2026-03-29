@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useAccount, useDisconnect } from 'wagmi';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 
 const CHAINS = ["ERC20", "BEP20", "Polygon", "Arbitrum", "Optimism"];
 const TOKENS = ["USDT", "USDC"];
@@ -45,11 +47,13 @@ const StatusBadge = ({ status }) => {
 };
 
 export default function App() {
+  const { address, isConnected } = useAccount();
+  const { openConnectModal } = useConnectModal();
+  const { disconnect } = useDisconnect();
+
   const [page, setPage] = useState("wallet");
   const [employees, setEmployees] = useState(initialEmployees);
   const [nextId, setNextId] = useState(6);
-  const [walletConnected, setWalletConnected] = useState(false);
-  const [walletName, setWalletName] = useState("");
   const [payAmounts, setPayAmounts] = useState({});
   const [payTokens, setPayTokens] = useState({});
   const [chainFilter, setChainFilter] = useState("All");
@@ -74,11 +78,9 @@ export default function App() {
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [success, setSuccess] = useState(null);
   const [expandedRun, setExpandedRun] = useState(null);
-  const [expandedApproval, setExpandedApproval] = useState(null);
   const [formData, setFormData] = useState({ name: "", email: "", addr: "", chain: "ERC20", salary: "" });
   const [bulkAmount, setBulkAmount] = useState("");
   const [csvText, setCsvText] = useState("");
-  const [newSigner, setNewSigner] = useState({ name: "", addr: "" });
   const [newSignerName, setNewSignerName] = useState("");
   const [newSignerAddr, setNewSignerAddr] = useState("");
   const [exportPreview, setExportPreview] = useState(null);
@@ -94,8 +96,6 @@ export default function App() {
   const redLight = "#FEE2E2";
   const blue = "#2563EB";
   const blueLight = "#DBEAFE";
-  const teal = "#0D9488";
-  const tealLight = "#CCFBF1";
 
   const btn = {
     padding: "7px 14px", border: "0.5px solid #ccc", borderRadius: 8, cursor: "pointer",
@@ -122,18 +122,16 @@ export default function App() {
   const payFilteredEmployees = employees.filter((e) => payFilter === "All" || e.chain === payFilter);
 
   const totalPayout = payFilteredEmployees.reduce((sum, e) => {
-    if (selectedEmployees[e.id]) {
-      return sum + (parseFloat(payAmounts[e.id]) || 0);
-    }
+    if (selectedEmployees[e.id]) return sum + (parseFloat(payAmounts[e.id]) || 0);
     return sum;
   }, 0);
 
   const selectedCount = Object.values(selectedEmployees).filter(Boolean).length;
   const pendingApprovals = approvals.filter((a) => a.status === "Pending").length;
+  const shortAddress = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "";
 
-  function connectWallet(name) {
-    setWalletConnected(true);
-    setWalletName(name);
+  function connectWallet() {
+    if (openConnectModal) openConnectModal();
   }
 
   function openAddModal() {
@@ -210,7 +208,7 @@ export default function App() {
   }
 
   function executePayroll() {
-    if (!walletConnected) { alert("Connect your treasury wallet first."); return; }
+    if (!isConnected) { alert("Connect your treasury wallet first."); return; }
     const { items, total } = collectPayrollData();
     if (items.length === 0) { alert("Select at least one employee."); return; }
     const run = { id: history.length + 1, date: new Date().toLocaleDateString(), time: new Date().toLocaleTimeString(), count: items.length, total, token: globalToken, items, status: "Success" };
@@ -221,7 +219,7 @@ export default function App() {
   }
 
   function submitForApproval() {
-    if (!walletConnected) { alert("Connect your treasury wallet first."); return; }
+    if (!isConnected) { alert("Connect your treasury wallet first."); return; }
     const { items, total } = collectPayrollData();
     if (items.length === 0) { alert("Select at least one employee."); return; }
     const req = { id: nextApprovalId, date: new Date().toLocaleDateString(), time: new Date().toLocaleTimeString(), count: items.length, total, token: globalToken, items, status: "Pending", signerStatuses: signers.map((s) => ({ ...s, status: "Pending" })) };
@@ -310,10 +308,10 @@ export default function App() {
           {/* Topbar */}
           <div style={{ padding: "12px 20px", borderBottom: "0.5px solid #e5e7eb", display: "flex", alignItems: "center", justifyContent: "space-between", background: "#fff" }}>
             <span style={{ fontSize: 15, fontWeight: 500 }}>{{ wallet: "Wallet connect", employees: "Employees", payout: "Run payroll", approvals: "Approvals", history: "History" }[page]}</span>
-            <div onClick={() => setPage("wallet")}
-              style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", border: walletConnected ? `0.5px solid ${green}` : "0.5px solid #e5e7eb", borderRadius: 20, cursor: "pointer", fontSize: 12, background: walletConnected ? greenLight : "transparent", color: walletConnected ? green : "#6b7280", transition: "all 0.15s" }}>
-              <span style={{ width: 7, height: 7, borderRadius: "50%", background: walletConnected ? green : "#d1d5db", display: "inline-block" }}></span>
-              {walletConnected ? walletName : "Not connected"}
+            <div onClick={isConnected ? () => disconnect() : connectWallet}
+              style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", border: isConnected ? `0.5px solid ${green}` : "0.5px solid #e5e7eb", borderRadius: 20, cursor: "pointer", fontSize: 12, background: isConnected ? greenLight : "transparent", color: isConnected ? green : "#6b7280", transition: "all 0.15s" }}>
+              <span style={{ width: 7, height: 7, borderRadius: "50%", background: isConnected ? green : "#d1d5db", display: "inline-block" }}></span>
+              {isConnected ? shortAddress : "Not connected"}
             </div>
           </div>
 
@@ -328,22 +326,25 @@ export default function App() {
                 <div style={{ fontSize: 13, color: "#6b7280", marginBottom: 20, textAlign: "center", maxWidth: 300 }}>Connect the wallet holding your company USDT/USDC to authorize payroll</div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, width: 360 }}>
                   {[{ name: "MetaMask", icon: "🦊", chain: "EVM chains" }, { name: "Rabby", icon: "🐰", chain: "EVM chains" }, { name: "Phantom", icon: "👻", chain: "Solana + EVM" }, { name: "WalletConnect", icon: "🔗", chain: "Any wallet" }].map((w) => (
-                    <div key={w.name} onClick={() => connectWallet(w.name)}
-                      style={{ padding: "14px 16px", border: `0.5px solid ${walletConnected && walletName === w.name ? brand : "#e5e7eb"}`, borderRadius: 10, cursor: "pointer", display: "flex", alignItems: "center", gap: 10, background: walletConnected && walletName === w.name ? brandLight : "#fff", transition: "all 0.15s" }}>
+                    <div key={w.name} onClick={() => connectWallet()}
+                      style={{ padding: "14px 16px", border: `0.5px solid ${isConnected ? brand : "#e5e7eb"}`, borderRadius: 10, cursor: "pointer", display: "flex", alignItems: "center", gap: 10, background: isConnected ? brandLight : "#fff", transition: "all 0.15s" }}>
                       <div style={{ width: 36, height: 36, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, background: "#f3f4f6" }}>{w.icon}</div>
                       <div><div style={{ fontSize: 13, fontWeight: 500 }}>{w.name}</div><div style={{ fontSize: 11, color: "#9ca3af" }}>{w.chain}</div></div>
                     </div>
                   ))}
                 </div>
-                {walletConnected && (
+                {isConnected && (
                   <div style={{ marginTop: 20, padding: "14px 18px", border: `0.5px solid #c4b5fd`, borderRadius: 12, width: 360, background: brandLight }}>
-                    <div style={{ fontSize: 12, color: brandDark, marginBottom: 8, fontWeight: 500 }}>Connected via {walletName}</div>
-                    <div style={{ fontFamily: "monospace", fontSize: 12, marginBottom: 10, color: brand }}>0x7F3a...9bC2e4D1 (demo)</div>
-                    <div style={{ display: "flex", gap: 20 }}>
-                      {[["USDT", "84,200.00"], ["USDC", "31,500.00"], ["Network", "EVM"]].map(([label, val]) => (
-                        <div key={label}><div style={{ fontSize: 10, color: brandDark, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>{label}</div><div style={{ fontSize: 16, fontWeight: 500, color: brandDark }}>{val}</div></div>
-                      ))}
+                    <div style={{ fontSize: 12, color: brandDark, marginBottom: 8, fontWeight: 500 }}>Connected wallet</div>
+                    <div style={{ fontFamily: "monospace", fontSize: 12, marginBottom: 10, color: brand }}>{address}</div>
+                    <div style={{ display: "flex", gap: 20, marginBottom: 12 }}>
+                      <div><div style={{ fontSize: 10, color: brandDark, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>Network</div><div style={{ fontSize: 16, fontWeight: 500, color: brandDark }}>Base</div></div>
+                      <div><div style={{ fontSize: 10, color: brandDark, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>Status</div><div style={{ fontSize: 16, fontWeight: 500, color: green }}>Connected ✓</div></div>
                     </div>
+                    <button onClick={() => disconnect()}
+                      style={{ width: "100%", padding: "8px", border: `1px solid ${red}`, borderRadius: 8, cursor: "pointer", background: redLight, color: red, fontSize: 13, fontFamily: "inherit", fontWeight: 500 }}>
+                      Disconnect wallet
+                    </button>
                   </div>
                 )}
               </div>
@@ -367,7 +368,7 @@ export default function App() {
                   <thead><tr>{["Name", "Email", "Wallet", "Chain", "Salary", ""].map((h) => <th key={h} style={{ fontSize: 11, color: "#6b7280", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", padding: "8px 10px", borderBottom: "0.5px solid #e5e7eb", textAlign: "left" }}>{h}</th>)}</tr></thead>
                   <tbody>
                     {filteredEmployees.map((e) => (
-                      <tr key={e.id} style={{ cursor: "pointer" }}>
+                      <tr key={e.id}>
                         <td style={{ padding: "9px 10px", borderBottom: "0.5px solid #f3f4f6", fontWeight: 500 }}>{e.name}</td>
                         <td style={{ padding: "9px 10px", borderBottom: "0.5px solid #f3f4f6", color: "#6b7280", fontSize: 12 }}>{e.email}</td>
                         <td style={{ padding: "9px 10px", borderBottom: "0.5px solid #f3f4f6", fontFamily: "monospace", fontSize: 11, color: "#6b7280" }}>{e.addr}</td>
@@ -387,7 +388,7 @@ export default function App() {
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12, marginBottom: 20 }}>
                   <div style={{ background: brandLight, borderRadius: 12, padding: "14px 16px" }}><div style={{ fontSize: 11, color: brandDark, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Selected</div><div style={{ fontSize: 22, fontWeight: 500, color: brandDark }}>{selectedCount}</div><div style={{ fontSize: 11, color: brandDark, opacity: 0.6, marginTop: 2 }}>employees</div></div>
                   <div style={{ background: greenLight, borderRadius: 12, padding: "14px 16px" }}><div style={{ fontSize: 11, color: green, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Total payout</div><div style={{ fontSize: 22, fontWeight: 500, color: green }}>${totalPayout.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div><div style={{ fontSize: 11, color: green, opacity: 0.6, marginTop: 2 }}>{globalToken}</div></div>
-                  <div style={{ background: blueLight, borderRadius: 12, padding: "14px 16px" }}><div style={{ fontSize: 11, color: blue, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Treasury balance</div><div style={{ fontSize: 22, fontWeight: 500, color: blue }}>{walletConnected ? (globalToken === "USDT" ? "84,200" : "31,500") : "—"}</div><div style={{ fontSize: 11, color: blue, opacity: 0.6, marginTop: 2 }}>{walletConnected ? globalToken : "Connect wallet"}</div></div>
+                  <div style={{ background: blueLight, borderRadius: 12, padding: "14px 16px" }}><div style={{ fontSize: 11, color: blue, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>Treasury</div><div style={{ fontSize: 22, fontWeight: 500, color: blue }}>{isConnected ? "Connected" : "—"}</div><div style={{ fontSize: 11, color: blue, opacity: 0.6, marginTop: 2 }}>{isConnected ? shortAddress : "Connect wallet"}</div></div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14, flexWrap: "wrap" }}>
                   <select style={{ ...select }} value={globalToken} onChange={(e) => setGlobalToken(e.target.value)}>{TOKENS.map((t) => <option key={t}>{t}</option>)}</select>
@@ -544,8 +545,7 @@ export default function App() {
               <div style={{ fontSize: 28, marginBottom: 8 }}>↑</div>
               <div style={{ fontWeight: 500 }}>Click to load demo CSV</div>
             </div>
-            <textarea rows={4} placeholder="Or paste CSV data here..." value={csvText} onChange={(e) => setCsvText(e.target.value)}
-              style={{ ...input, resize: "vertical" }} />
+            <textarea rows={4} placeholder="Or paste CSV data here..." value={csvText} onChange={(e) => setCsvText(e.target.value)} style={{ ...input, resize: "vertical" }} />
             <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 16 }}>
               <button style={btn} onClick={() => setShowCsvModal(false)}>Cancel</button>
               <button style={btnBrand} onClick={importCsv}>Import</button>
