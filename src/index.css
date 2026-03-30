@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap');
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -5,35 +7,79 @@
 }
 
 body {
-  font-family: 'Inter', system-ui, sans-serif;
-  background: #0A0A0F;
-  color: #E2E2FF;
+  font-family: 'Outfit', system-ui, sans-serif;
+  background: #03010a;
+  color: #e2d9f3;
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
-::-webkit-scrollbar {
-  width: 6px;
+/* Deep space starfield background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% -10%, rgba(124,58,237,0.12) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 50% at 80% 110%, rgba(37,99,235,0.1) 0%, transparent 50%),
+    radial-gradient(ellipse 40% 40% at 50% 50%, rgba(6,182,212,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 100% 100% at 50% 50%, #03010a 0%, #03010a 100%);
+  pointer-events: none;
+  z-index: 0;
 }
 
-::-webkit-scrollbar-track {
-  background: #13131A;
+/* Subtle star grid */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.15) 0%, transparent 100%),
+    radial-gradient(1px 1px at 80% 10%, rgba(255,255,255,0.1) 0%, transparent 100%),
+    radial-gradient(1px 1px at 40% 70%, rgba(255,255,255,0.12) 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 50%, rgba(255,255,255,0.08) 0%, transparent 100%),
+    radial-gradient(1px 1px at 10% 60%, rgba(255,255,255,0.1) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 80%, rgba(255,255,255,0.15) 0%, transparent 100%),
+    radial-gradient(1px 1px at 55% 25%, rgba(200,180,255,0.2) 0%, transparent 100%),
+    radial-gradient(2px 2px at 30% 90%, rgba(200,180,255,0.1) 0%, transparent 100%),
+    radial-gradient(1px 1px at 65% 15%, rgba(255,255,255,0.18) 0%, transparent 100%),
+    radial-gradient(1px 1px at 45% 45%, rgba(200,180,255,0.12) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
 }
 
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #03010a; }
 ::-webkit-scrollbar-thumb {
-  background: #2A2A3E;
+  background: linear-gradient(180deg, #7c3aed, #2563eb);
   border-radius: 3px;
 }
+::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #8b5cf6, #3b82f6); }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #7C5CFC;
-}
-
-* {
-  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+/* Selection */
+::selection {
+  background: rgba(124,58,237,0.4);
+  color: #e2d9f3;
 }
 
 input, select, textarea, button {
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Outfit', system-ui, sans-serif;
+}
+
+/* Gradient text utility */
+.gradient-text {
+  background: linear-gradient(135deg, #a78bfa, #60a5fa, #67e8f9);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: text-shimmer 4s linear infinite;
 }
