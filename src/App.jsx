@@ -22,31 +22,43 @@ const CHAINS = ["ERC20", "BEP20", "Polygon", "Arbitrum", "Optimism"];
 
 // ── Animated Logo Component ───────────────────────────────────────────────
 const PayChainLogo = ({ size = 36 }) => (
-  <div style={{ width: size, height: size, position: 'relative', flexShrink: 0 }}>
-    {/* Outer ring */}
-    <div style={{
-      position: 'absolute', inset: 0, borderRadius: '50%',
-      border: '1.5px solid rgba(124,58,237,0.4)',
-      animation: 'logo-ring-spin 8s linear infinite',
-    }}>
-      <div style={{ position: 'absolute', top: -2, left: '50%', transform: 'translateX(-50%)', width: 4, height: 4, borderRadius: '50%', background: '#7c3aed' }} />
+  <div style={{ width: size, height: size, position: 'relative', flexShrink: 0, isolation: 'isolate' }}>
+    {/* Spinning outer dashed octagon */}
+    <div style={{ position: 'absolute', inset: 0, zIndex: 1, animation: 'logo-ring-spin 6s linear infinite' }}>
+      <svg width={size} height={size} viewBox="0 0 100 100" style={{ display: 'block' }}>
+        <defs>
+          <linearGradient id="og1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#7c3aed" />
+            <stop offset="100%" stopColor="#2563eb" />
+          </linearGradient>
+        </defs>
+        <polygon points="29,7 71,7 93,29 93,71 71,93 29,93 7,71 7,29" fill="none" stroke="url(#og1)" strokeWidth="3" strokeDasharray="8 4" />
+      </svg>
     </div>
-    {/* Inner ring */}
-    <div style={{
-      position: 'absolute', inset: 5, borderRadius: '50%',
-      border: '1px solid rgba(37,99,235,0.5)',
-      animation: 'logo-ring-spin-reverse 5s linear infinite',
-    }}>
-      <div style={{ position: 'absolute', bottom: -1.5, left: '50%', transform: 'translateX(-50%)', width: 3, height: 3, borderRadius: '50%', background: '#2563eb' }} />
+    {/* Filled gradient inner octagon - NO filter */}
+    <div style={{ position: 'absolute', inset: size * 0.1, zIndex: 2 }}>
+      <svg width="100%" height="100%" viewBox="0 0 100 100" style={{ display: 'block' }}>
+        <defs>
+          <linearGradient id="og2" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#7c3aed" />
+            <stop offset="50%" stopColor="#2563eb" />
+            <stop offset="100%" stopColor="#06b6d4" />
+          </linearGradient>
+        </defs>
+        <polygon points="29,7 71,7 93,29 93,71 71,93 29,93 7,71 7,29" fill="url(#og2)" />
+      </svg>
     </div>
-    {/* Core */}
+    {/* Dollar sign - always on top */}
     <div style={{
-      position: 'absolute', inset: 10, borderRadius: '50%',
-      background: 'linear-gradient(135deg, #7c3aed, #2563eb, #06b6d4)',
+      position: 'absolute', inset: 0, zIndex: 10,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      fontSize: size * 0.35, animation: 'logo-core-breathe 3s ease-in-out infinite',
-      boxShadow: '0 0 15px rgba(124,58,237,0.6), 0 0 30px rgba(37,99,235,0.3)',
-    }}>⛓</div>
+      fontSize: size * 0.4, fontWeight: 900, lineHeight: 1,
+      color: '#ffffff',
+      animation: 'logo-core-breathe 2.5s ease-in-out infinite',
+      textShadow: '0 0 10px rgba(255,255,255,0.9), 0 0 25px rgba(255,255,255,0.5)',
+      fontFamily: 'system-ui, sans-serif',
+      userSelect: 'none',
+    }}>$</div>
   </div>
 );
 
@@ -142,7 +154,6 @@ export default function App() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [loading, setLoading] = useState(true);
   const [txPending, setTxPending] = useState(false);
-
   const [page, setPage] = useState("wallet");
   const [pageKey, setPageKey] = useState(0);
   const [employees, setEmployees] = useState([]);
@@ -195,28 +206,12 @@ export default function App() {
     }
   }, [activeEmployeesData]);
 
-  // ── Design Tokens ─────────────────────────────────────────────────────────
-  const bg = "#03010a";
-  const surface = "#080514";
-  const surface2 = "#0d0920";
-  const border = "#1a1035";
-  const border2 = "#241848";
-  const brand = "#7c3aed";
-  const brandDark = "#5b21b6";
-  const brandLight = "rgba(124,58,237,0.12)";
-  const blue = "#2563eb";
-  const cyan = "#06b6d4";
-  const green = "#10b981";
-  const greenLight = "rgba(16,185,129,0.1)";
-  const amber = "#f59e0b";
-  const amberLight = "rgba(245,158,11,0.1)";
-  const red = "#ef4444";
-  const redLight = "rgba(239,68,68,0.1)";
-  const textPrimary = "#e2d9f3";
-  const textSecondary = "#7c6fa0";
-  const textMuted = "#4a4168";
+  const bg = "#03010a", surface = "#080514", surface2 = "#0d0920", border = "#1a1035", border2 = "#241848";
+  const brand = "#7c3aed", brandDark = "#5b21b6", brandLight = "rgba(124,58,237,0.12)";
+  const blue = "#2563eb", cyan = "#06b6d4", green = "#10b981", greenLight = "rgba(16,185,129,0.1)";
+  const amber = "#f59e0b", amberLight = "rgba(245,158,11,0.1)", red = "#ef4444", redLight = "rgba(239,68,68,0.1)";
+  const textPrimary = "#e2d9f3", textSecondary = "#7c6fa0", textMuted = "#4a4168";
 
-  // ── Styles ────────────────────────────────────────────────────────────────
   const btn = { padding: "8px 18px", border: `1px solid ${border2}`, borderRadius: 10, cursor: "pointer", fontSize: 13, fontWeight: 600, background: surface2, color: textSecondary, transition: "all 0.2s", fontFamily: "inherit", letterSpacing: "0.01em" };
   const btnBrand = { ...btn, background: `linear-gradient(135deg, ${brand}, ${blue})`, color: "#fff", border: "none", boxShadow: `0 0 20px rgba(124,58,237,0.4), 0 4px 15px rgba(0,0,0,0.3)` };
   const btnGreen = { ...btn, background: `linear-gradient(135deg, ${green}, #059669)`, color: "#fff", border: "none", boxShadow: "0 0 15px rgba(16,185,129,0.3)" };
@@ -225,16 +220,7 @@ export default function App() {
   const btnBrandSm = { ...btnSm, background: `linear-gradient(135deg, ${brand}, ${blue})`, color: "#fff", border: "none", boxShadow: `0 0 12px rgba(124,58,237,0.35)` };
   const btnRedSm = { ...btnSm, background: redLight, border: `1px solid rgba(239,68,68,0.3)`, color: red };
   const input = { width: "100%", padding: "10px 14px", border: `1px solid ${border2}`, borderRadius: 10, fontSize: 13, background: surface2, color: textPrimary, fontFamily: "inherit", boxSizing: "border-box", outline: "none", transition: "all 0.2s" };
-
-  // Glowing card style
-  const glowCard = {
-    background: `linear-gradient(135deg, ${surface} 0%, ${surface2} 100%)`,
-    border: `1px solid ${border}`,
-    borderRadius: 16,
-    position: "relative",
-    overflow: "hidden",
-    transition: "all 0.3s cubic-bezier(0.16,1,0.3,1)",
-  };
+  const glowCard = { background: `linear-gradient(135deg, ${surface} 0%, ${surface2} 100%)`, border: `1px solid ${border}`, borderRadius: 16, position: "relative", overflow: "hidden", transition: "all 0.3s cubic-bezier(0.16,1,0.3,1)" };
 
   useEffect(() => { loadEmployees(); loadHistory(); }, []);
 
@@ -250,14 +236,10 @@ export default function App() {
     if (!error && data) setHistory(data.map((r, i) => ({ ...r, id: i + 1, date: r.run_date, time: r.run_time, count: r.items?.length || 0, items: r.items || [] })));
   }
 
-  const allEmployees = [
-    ...contractEmployees,
-    ...employees.filter(e => !contractEmployees.find(c => c.addr?.toLowerCase() === e.addr?.toLowerCase())),
-  ];
+  const allEmployees = [...contractEmployees, ...employees.filter(e => !contractEmployees.find(c => c.addr?.toLowerCase() === e.addr?.toLowerCase()))];
   const filteredEmployees = allEmployees.filter(e => {
     const ms = !searchQ || e.name.toLowerCase().includes(searchQ) || (e.email || "").toLowerCase().includes(searchQ);
-    const mc = chainFilter === "All" || e.chain === chainFilter;
-    return ms && mc;
+    return ms && (chainFilter === "All" || e.chain === chainFilter);
   });
 
   const pendingApprovals = approvals.filter(a => a.status === "Pending").length;
@@ -266,17 +248,8 @@ export default function App() {
   function navigateTo(p) { setPage(p); setPageKey(k => k + 1); }
   function triggerConfetti() { setShowConfetti(true); setTimeout(() => setShowConfetti(false), 4000); }
   function connectWallet() { if (openConnectModal) openConnectModal(); }
-
-  function openAddModal() {
-    setEditingEmployee(null);
-    setFormData({ name: "", email: "", addr: "", chain: "ERC20", salary: "" });
-    setShowAddModal(true);
-  }
-  function openEditModal(emp) {
-    setEditingEmployee(emp);
-    setFormData({ name: emp.name, email: emp.email || "", addr: emp.addr, chain: emp.chain, salary: emp.salary || "" });
-    setShowAddModal(true);
-  }
+  function openAddModal() { setEditingEmployee(null); setFormData({ name: "", email: "", addr: "", chain: "ERC20", salary: "" }); setShowAddModal(true); }
+  function openEditModal(emp) { setEditingEmployee(emp); setFormData({ name: emp.name, email: emp.email || "", addr: emp.addr, chain: emp.chain, salary: emp.salary || "" }); setShowAddModal(true); }
 
   async function saveEmployee() {
     if (!formData.name || !formData.addr) return;
@@ -396,22 +369,9 @@ export default function App() {
 
   function exportPDF() {
     if (history.length === 0) { alert("No history yet."); return; }
-    let html = `<html><head><title>PayChain Report</title><style>
-      body{font-family:Arial,sans-serif;padding:40px;color:#111;background:#fff;}
-      h1{color:#7c3aed;margin-bottom:4px;font-size:24px;}
-      .sub{color:#666;font-size:13px;margin-bottom:30px;}
-      table{width:100%;border-collapse:collapse;margin-bottom:30px;}
-      th{background:#7c3aed;color:#fff;padding:10px 12px;text-align:left;font-size:12px;}
-      td{padding:10px 12px;border-bottom:1px solid #eee;font-size:13px;}
-      .run-header{background:#f5f3ff;padding:12px 16px;border-left:4px solid #7c3aed;margin-bottom:8px;border-radius:4px;}
-      .total{font-weight:bold;color:#7c3aed;}
-      .amount{color:#059669;font-weight:bold;}
-    </style></head><body>
-    <h1>⛓ PayChain — Payroll Report</h1>
-    <div class="sub">Generated: ${new Date().toLocaleString()} | Contract: ${CONTRACT_ADDRESS}</div>`;
+    let html = `<html><head><title>PayChain Report</title><style>body{font-family:Arial,sans-serif;padding:40px;color:#111;background:#fff;}h1{color:#7c3aed;margin-bottom:4px;font-size:24px;}.sub{color:#666;font-size:13px;margin-bottom:30px;}table{width:100%;border-collapse:collapse;margin-bottom:30px;}th{background:#7c3aed;color:#fff;padding:10px 12px;text-align:left;font-size:12px;}td{padding:10px 12px;border-bottom:1px solid #eee;font-size:13px;}.run-header{background:#f5f3ff;padding:12px 16px;border-left:4px solid #7c3aed;margin-bottom:8px;border-radius:4px;}.total{font-weight:bold;color:#7c3aed;}.amount{color:#059669;font-weight:bold;}</style></head><body><h1>$ PayChain — Payroll Report</h1><div class="sub">Generated: ${new Date().toLocaleString()} | Contract: ${CONTRACT_ADDRESS}</div>`;
     history.forEach(r => {
-      html += `<div class="run-header"><strong>Run #${r.id}</strong> — ${r.date} at ${r.time} &nbsp;|&nbsp; <strong>${r.status}</strong> &nbsp;|&nbsp; Total: <span class="total">${r.total.toFixed(4)} ${r.token}</span></div>
-      <table><tr><th>Employee</th><th>Wallet</th><th>Chain</th><th>Amount</th></tr>`;
+      html += `<div class="run-header"><strong>Run #${r.id}</strong> — ${r.date} at ${r.time} | <strong>${r.status}</strong> | Total: <span class="total">${r.total.toFixed(4)} ${r.token}</span></div><table><tr><th>Employee</th><th>Wallet</th><th>Chain</th><th>Amount</th></tr>`;
       r.items.forEach(i => { html += `<tr><td>${i.name}</td><td style="font-family:monospace;font-size:11px">${i.addr}</td><td>${i.chain}</td><td class="amount">${i.amt.toFixed(4)} ${i.token}</td></tr>`; });
       html += `</table>`;
     });
@@ -437,17 +397,11 @@ export default function App() {
       <Confetti show={showConfetti} />
 
       <div style={{ display: "flex", width: "100%", maxWidth: 1160, height: 720, border: `1px solid ${border}`, borderRadius: 24, overflow: "hidden", background: surface, boxShadow: `0 0 80px rgba(124,58,237,0.15), 0 0 160px rgba(37,99,235,0.08), 0 40px 80px rgba(0,0,0,0.8)`, position: "relative", zIndex: 1 }}>
-
-        {/* Glowing border effect */}
         <div style={{ position: "absolute", inset: 0, borderRadius: 24, background: `linear-gradient(135deg, rgba(124,58,237,0.15), transparent, rgba(37,99,235,0.1))`, pointerEvents: "none", zIndex: 0 }} />
 
-        {/* ── SIDEBAR ──────────────────────────────────────────────────────── */}
+        {/* SIDEBAR */}
         <div style={{ width: 230, borderRight: `1px solid ${border}`, background: `linear-gradient(180deg, #06030f 0%, #08041a 100%)`, display: "flex", flexDirection: "column", padding: "20px 0", position: "relative", zIndex: 1 }}>
-
-          {/* Sidebar glow */}
           <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 200, background: "radial-gradient(ellipse at 50% 0%, rgba(124,58,237,0.12) 0%, transparent 70%)", pointerEvents: "none" }} />
-
-          {/* Logo */}
           <div style={{ padding: "0 20px 20px", borderBottom: `1px solid ${border}`, marginBottom: 12, display: "flex", alignItems: "center", gap: 12 }}>
             <PayChainLogo size={40} />
             <div>
@@ -455,9 +409,7 @@ export default function App() {
               <div style={{ fontSize: 9, color: textMuted, marginTop: 1, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.12em" }}>Crypto Payroll</div>
             </div>
           </div>
-
-          {/* Nav Items */}
-          {navItems.map((item, idx) => (
+          {navItems.map(item => (
             <div key={item.id} onClick={() => navigateTo(item.id)}
               style={{ padding: "10px 14px", cursor: "pointer", display: "flex", alignItems: "center", gap: 10, fontSize: 13, margin: "2px 10px", borderRadius: 12, background: page === item.id ? `linear-gradient(135deg, rgba(124,58,237,0.2), rgba(37,99,235,0.1))` : "transparent", color: page === item.id ? "#a78bfa" : textSecondary, fontWeight: page === item.id ? 700 : 400, border: page === item.id ? `1px solid rgba(124,58,237,0.3)` : "1px solid transparent", transition: "all 0.2s cubic-bezier(0.16,1,0.3,1)", boxShadow: page === item.id ? "0 0 20px rgba(124,58,237,0.15)" : "none" }}>
               <div style={{ width: 28, height: 28, borderRadius: 8, background: page === item.id ? `linear-gradient(135deg, ${brand}, ${blue})` : surface2, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, color: page === item.id ? "#fff" : textMuted, boxShadow: page === item.id ? `0 0 12px rgba(124,58,237,0.5)` : "none", transition: "all 0.2s", flexShrink: 0 }}>{item.icon}</div>
@@ -465,22 +417,18 @@ export default function App() {
               {item.badge > 0 && <span style={{ marginLeft: "auto", background: item.id === "approvals" ? red : brand, color: "#fff", fontSize: 10, padding: "2px 8px", borderRadius: 20, fontWeight: 700, boxShadow: `0 0 8px ${item.id === "approvals" ? red : brand}66` }}>{item.badge}</span>}
             </div>
           ))}
-
-          {/* Contract info */}
           <div style={{ margin: "auto 10px 0", padding: "14px", borderTop: `1px solid ${border}`, borderRadius: 12, background: surface2 }}>
             <div style={{ fontSize: 9, color: textMuted, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 }}>Contract</div>
             <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: brand, wordBreak: "break-all", lineHeight: 1.5 }}>{CONTRACT_ADDRESS.slice(0,10)}...{CONTRACT_ADDRESS.slice(-6)}</div>
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 8 }}>
-              <div className={isConnected ? "pulse-green" : ""} style={{ width: 7, height: 7, borderRadius: "50%", background: isConnected ? green : border2, flexShrink: 0 }}></div>
+              <div className={isConnected ? "pulse-green" : ""} style={{ width: 7, height: 7, borderRadius: "50%", background: isConnected ? green : border2, flexShrink: 0 }} />
               <div style={{ fontSize: 11, color: isConnected ? green : textMuted, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{isConnected ? shortAddress : "Not connected"}</div>
             </div>
           </div>
         </div>
 
-        {/* ── MAIN CONTENT ─────────────────────────────────────────────────── */}
+        {/* MAIN */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minWidth: 0, position: "relative", zIndex: 1 }}>
-
-          {/* Top bar */}
           <div style={{ padding: "16px 28px", borderBottom: `1px solid ${border}`, display: "flex", alignItems: "center", justifyContent: "space-between", background: `linear-gradient(90deg, ${surface} 0%, rgba(13,9,32,0.8) 100%)`, backdropFilter: "blur(10px)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <span style={{ fontSize: 17, fontWeight: 800, letterSpacing: "-0.02em", background: "linear-gradient(135deg, #e2d9f3, #a78bfa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
@@ -489,15 +437,8 @@ export default function App() {
               {page === "employees" && <span style={{ fontSize: 11, color: brand, background: brandLight, padding: "3px 10px", borderRadius: 20, border: `1px solid rgba(124,58,237,0.25)`, fontWeight: 600 }}>{contractEmployees.length} on-chain</span>}
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              {txPending && (
-                <span style={{ fontSize: 11, color: amber, background: amberLight, padding: "5px 12px", borderRadius: 20, border: `1px solid rgba(245,158,11,0.25)`, display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}>
-                  <span style={{ width: 8, height: 8, border: "2px solid rgba(245,158,11,0.3)", borderTop: `2px solid ${amber}`, borderRadius: "50%", display: "inline-block", animation: "spin 0.7s linear infinite" }} />
-                  Broadcasting...
-                </span>
-              )}
-              {isConnected && isOwner && (
-                <span style={{ fontSize: 11, color: "#fbbf24", background: "rgba(251,191,36,0.1)", padding: "5px 12px", borderRadius: 20, border: "1px solid rgba(251,191,36,0.25)", fontWeight: 700 }}>👑 Owner</span>
-              )}
+              {txPending && <span style={{ fontSize: 11, color: amber, background: amberLight, padding: "5px 12px", borderRadius: 20, border: `1px solid rgba(245,158,11,0.25)`, display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}><span style={{ width: 8, height: 8, border: "2px solid rgba(245,158,11,0.3)", borderTop: `2px solid ${amber}`, borderRadius: "50%", display: "inline-block", animation: "spin 0.7s linear infinite" }} />Broadcasting...</span>}
+              {isConnected && isOwner && <span style={{ fontSize: 11, color: "#fbbf24", background: "rgba(251,191,36,0.1)", padding: "5px 12px", borderRadius: 20, border: "1px solid rgba(251,191,36,0.25)", fontWeight: 700 }}>👑 Owner</span>}
               <div onClick={isConnected ? () => disconnect() : connectWallet}
                 style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", border: isConnected ? `1px solid rgba(16,185,129,0.3)` : `1px solid ${border2}`, borderRadius: 20, cursor: "pointer", fontSize: 12, fontWeight: 600, background: isConnected ? "rgba(16,185,129,0.1)" : surface2, color: isConnected ? green : textSecondary, transition: "all 0.2s", boxShadow: isConnected ? "0 0 15px rgba(16,185,129,0.15)" : "none" }}>
                 <span className={isConnected ? "pulse-green" : ""} style={{ width: 7, height: 7, borderRadius: "50%", background: isConnected ? green : border2, display: "inline-block" }} />
@@ -506,29 +447,21 @@ export default function App() {
             </div>
           </div>
 
-          {/* Page content */}
           <div key={pageKey} className="page-transition" style={{ flex: 1, overflowY: "auto", padding: 28, background: `radial-gradient(ellipse 80% 60% at 50% -20%, rgba(124,58,237,0.06) 0%, transparent 60%), ${bg}` }}>
 
-            {/* ── WALLET PAGE ────────────────────────────────────────────── */}
+            {/* WALLET PAGE */}
             {page === "wallet" && (
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: 10 }}>
-                {/* Big animated logo */}
                 <div style={{ position: "relative", marginBottom: 20 }}>
                   <PayChainLogo size={100} />
-                  <div style={{ position: "absolute", inset: -20, borderRadius: "50%", background: "radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%)", animation: "logo-pulse 3s ease-in-out infinite" }} />
+                  <div style={{ position: "absolute", inset: -20, borderRadius: "50%", background: "radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%)", animation: "logo-pulse 3s ease-in-out infinite", pointerEvents: "none" }} />
                 </div>
-                <div style={{ fontSize: 28, fontWeight: 900, letterSpacing: "-0.03em", textAlign: "center", background: "linear-gradient(135deg, #e2d9f3, #a78bfa, #60a5fa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", marginBottom: 8 }}>
-                  On-Chain Payroll
-                </div>
-                <div style={{ fontSize: 14, color: textSecondary, marginBottom: 32, textAlign: "center", maxWidth: 340, lineHeight: 1.7 }}>
-                  Connect your deployer wallet to manage employees and run payroll on <span style={{ color: brand, fontWeight: 600 }}>Base Sepolia</span>
-                </div>
-
-                {/* Wallet options */}
+                <div style={{ fontSize: 28, fontWeight: 900, letterSpacing: "-0.03em", textAlign: "center", background: "linear-gradient(135deg, #e2d9f3, #a78bfa, #60a5fa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", marginBottom: 8 }}>On-Chain Payroll</div>
+                <div style={{ fontSize: 14, color: textSecondary, marginBottom: 32, textAlign: "center", maxWidth: 340, lineHeight: 1.7 }}>Connect your deployer wallet to manage employees and run payroll on <span style={{ color: brand, fontWeight: 600 }}>Base Sepolia</span></div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, width: 420 }}>
                   {[{ name: "MetaMask", icon: "🦊", chain: "EVM chains" }, { name: "Rabby", icon: "🐰", chain: "EVM chains" }, { name: "Phantom", icon: "👻", chain: "Solana + EVM" }, { name: "WalletConnect", icon: "🔗", chain: "Any wallet" }].map(w => (
                     <div key={w.name} onClick={() => connectWallet()} className="card-hover"
-                      style={{ ...glowCard, padding: "18px", cursor: "pointer", display: "flex", alignItems: "center", gap: 14, boxShadow: isConnected ? `0 0 20px rgba(124,58,237,0.15)` : "none" }}>
+                      style={{ ...glowCard, padding: "18px", cursor: "pointer", display: "flex", alignItems: "center", gap: 14 }}>
                       <div style={{ width: 42, height: 42, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, background: surface2, border: `1px solid ${border2}` }}>{w.icon}</div>
                       <div>
                         <div style={{ fontSize: 14, fontWeight: 700, color: textPrimary }}>{w.name}</div>
@@ -538,7 +471,6 @@ export default function App() {
                     </div>
                   ))}
                 </div>
-
                 {isConnected && (
                   <div style={{ marginTop: 24, padding: "24px", border: `1px solid rgba(124,58,237,0.3)`, borderRadius: 20, width: 420, background: `linear-gradient(135deg, rgba(124,58,237,0.1), rgba(37,99,235,0.05))`, boxShadow: "0 0 40px rgba(124,58,237,0.15)" }}>
                     <div style={{ fontSize: 10, color: brand, marginBottom: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em" }}>✓ Connected Wallet</div>
@@ -560,16 +492,11 @@ export default function App() {
               </div>
             )}
 
-            {/* ── EMPLOYEES PAGE ──────────────────────────────────────────── */}
+            {/* EMPLOYEES PAGE */}
             {page === "employees" && (
               <div>
-                {/* Stats */}
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14, marginBottom: 24 }}>
-                  {[
-                    { label: "On-Chain Employees", val: contractEmployees.length, color: "#a78bfa", accent: brand },
-                    { label: "Treasury Balance", val: `${parseFloat(treasuryBalance).toFixed(4)} ETH`, color: green, accent: green },
-                    { label: "Monthly Cost", val: `${parseFloat(payrollCost).toFixed(4)} ETH`, color: enoughFunds ? green : red, accent: enoughFunds ? green : red },
-                  ].map(card => (
+                  {[{ label: "On-Chain Employees", val: contractEmployees.length, color: "#a78bfa", accent: brand }, { label: "Treasury Balance", val: `${parseFloat(treasuryBalance).toFixed(4)} ETH`, color: green, accent: green }, { label: "Monthly Cost", val: `${parseFloat(payrollCost).toFixed(4)} ETH`, color: enoughFunds ? green : red, accent: enoughFunds ? green : red }].map(card => (
                     <div key={card.label} className="card-hover" style={{ ...glowCard, padding: "18px 20px" }}>
                       <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, ${card.accent}, transparent)`, borderRadius: "16px 16px 0 0" }} />
                       <div style={{ fontSize: 10, color: textMuted, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8, fontWeight: 600 }}>{card.label}</div>
@@ -577,24 +504,19 @@ export default function App() {
                     </div>
                   ))}
                 </div>
-
-                {/* Search & filters */}
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
                   <div style={{ position: "relative" }}>
                     <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: textMuted, fontSize: 14 }}>🔍</span>
                     <input style={{ ...input, width: 200, paddingLeft: 34 }} placeholder="Search employees..." value={searchQ} onChange={e => setSearchQ(e.target.value)} />
                   </div>
                   {["All", "Base Sepolia", ...CHAINS.slice(0, 2)].map(c => (
-                    <button key={c} onClick={() => setChainFilter(c)}
-                      style={{ ...btnSm, borderRadius: 20, background: chainFilter === c ? `linear-gradient(135deg, ${brand}, ${blue})` : surface2, color: chainFilter === c ? "#fff" : textSecondary, border: chainFilter === c ? "none" : `1px solid ${border}`, boxShadow: chainFilter === c ? `0 0 12px rgba(124,58,237,0.4)` : "none" }}>{c}</button>
+                    <button key={c} onClick={() => setChainFilter(c)} style={{ ...btnSm, borderRadius: 20, background: chainFilter === c ? `linear-gradient(135deg, ${brand}, ${blue})` : surface2, color: chainFilter === c ? "#fff" : textSecondary, border: chainFilter === c ? "none" : `1px solid ${border}`, boxShadow: chainFilter === c ? `0 0 12px rgba(124,58,237,0.4)` : "none" }}>{c}</button>
                   ))}
                   <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
                     <button style={btnSm} onClick={() => setShowCsvModal(true)}>📂 CSV import</button>
                     <button className="btn-hover-glow" style={btnBrandSm} onClick={openAddModal}>+ Add Employee</button>
                   </div>
                 </div>
-
-                {/* Table */}
                 {loading ? (
                   <div style={{ textAlign: "center", padding: "60px 0", color: textMuted }}>
                     <div style={{ width: 32, height: 32, border: `2px solid ${border2}`, borderTop: `2px solid ${brand}`, borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 12px" }} />
@@ -605,9 +527,7 @@ export default function App() {
                     <table style={{ width: "100%", borderCollapse: "collapse" }}>
                       <thead>
                         <tr style={{ background: `linear-gradient(90deg, ${surface2}, rgba(13,9,32,0.5))` }}>
-                          {["Name", "Wallet", "Chain", "Salary", "Last Paid", "Actions"].map(h => (
-                            <th key={h} style={{ fontSize: 10, color: textMuted, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", padding: "14px 16px", borderBottom: `1px solid ${border}`, textAlign: "left" }}>{h}</th>
-                          ))}
+                          {["Name", "Wallet", "Chain", "Salary", "Last Paid", "Actions"].map(h => <th key={h} style={{ fontSize: 10, color: textMuted, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", padding: "14px 16px", borderBottom: `1px solid ${border}`, textAlign: "left" }}>{h}</th>)}
                         </tr>
                       </thead>
                       <tbody>
@@ -615,10 +535,7 @@ export default function App() {
                           <tr key={e.id} style={{ borderBottom: idx < filteredEmployees.length - 1 ? `1px solid ${border}` : "none", transition: "background 0.15s" }}
                             onMouseEnter={el => el.currentTarget.style.background = `rgba(124,58,237,0.05)`}
                             onMouseLeave={el => el.currentTarget.style.background = "transparent"}>
-                            <td style={{ padding: "14px 16px", fontWeight: 700, color: textPrimary }}>
-                              {e.name}
-                              {e.isOnChain && <span style={{ marginLeft: 8, fontSize: 10, color: cyan, background: "rgba(6,182,212,0.1)", padding: "2px 7px", borderRadius: 10, border: "1px solid rgba(6,182,212,0.2)", fontWeight: 600 }}>⛓</span>}
-                            </td>
+                            <td style={{ padding: "14px 16px", fontWeight: 700, color: textPrimary }}>{e.name}{e.isOnChain && <span style={{ marginLeft: 8, fontSize: 10, color: cyan, background: "rgba(6,182,212,0.1)", padding: "2px 7px", borderRadius: 10, border: "1px solid rgba(6,182,212,0.2)", fontWeight: 600 }}>⛓</span>}</td>
                             <td style={{ padding: "14px 16px", fontFamily: "'Space Mono', monospace", fontSize: 10, color: textSecondary }}>{e.addr ? `${e.addr.slice(0,8)}...${e.addr.slice(-6)}` : "—"}</td>
                             <td style={{ padding: "14px 16px" }}><ChainBadge chain={e.chain} /></td>
                             <td style={{ padding: "14px 16px", fontWeight: 700, color: green, fontFamily: "'Space Mono', monospace", fontSize: 13 }}>{e.salary ? `${parseFloat(e.salary).toFixed(4)}` : <span style={{ color: textMuted }}>—</span>} <span style={{ color: textMuted, fontSize: 11 }}>ETH</span></td>
@@ -631,12 +548,7 @@ export default function App() {
                             </td>
                           </tr>
                         ))}
-                        {filteredEmployees.length === 0 && (
-                          <tr><td colSpan={6} style={{ padding: "60px", textAlign: "center", color: textMuted }}>
-                            <div style={{ fontSize: 32, marginBottom: 12 }}>👥</div>
-                            No employees yet. Add your first employee!
-                          </td></tr>
-                        )}
+                        {filteredEmployees.length === 0 && <tr><td colSpan={6} style={{ padding: "60px", textAlign: "center", color: textMuted }}><div style={{ fontSize: 32, marginBottom: 12 }}>👥</div>No employees yet. Add your first employee!</td></tr>}
                       </tbody>
                     </table>
                   </div>
@@ -644,16 +556,11 @@ export default function App() {
               </div>
             )}
 
-            {/* ── PAYOUT PAGE ─────────────────────────────────────────────── */}
+            {/* PAYOUT PAGE */}
             {page === "payout" && (
               <div>
-                {/* Stats cards */}
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14, marginBottom: 24 }}>
-                  {[
-                    { label: "Active Employees", val: contractEmployees.length, sub: "on Base Sepolia", color: "#a78bfa", accent: brand },
-                    { label: "Payroll Cost", val: `${parseFloat(payrollCost).toFixed(4)} ETH`, sub: enoughFunds ? "✓ treasury funded" : "⚠ needs top-up", color: enoughFunds ? green : red, accent: enoughFunds ? green : red },
-                    { label: "Treasury Balance", val: `${parseFloat(treasuryBalance).toFixed(4)} ETH`, sub: shortAddress || "Connect wallet", color: "#60a5fa", accent: blue },
-                  ].map(card => (
+                  {[{ label: "Active Employees", val: contractEmployees.length, sub: "on Base Sepolia", color: "#a78bfa", accent: brand }, { label: "Payroll Cost", val: `${parseFloat(payrollCost).toFixed(4)} ETH`, sub: enoughFunds ? "✓ treasury funded" : "⚠ needs top-up", color: enoughFunds ? green : red, accent: enoughFunds ? green : red }, { label: "Treasury Balance", val: `${parseFloat(treasuryBalance).toFixed(4)} ETH`, sub: shortAddress || "Connect wallet", color: "#60a5fa", accent: blue }].map(card => (
                     <div key={card.label} className="card-hover" style={{ ...glowCard, padding: "20px" }}>
                       <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, ${card.accent}, transparent)` }} />
                       <div style={{ position: "absolute", top: -30, right: -30, width: 100, height: 100, borderRadius: "50%", background: card.accent, opacity: 0.06, filter: "blur(20px)" }} />
@@ -663,22 +570,15 @@ export default function App() {
                     </div>
                   ))}
                 </div>
-
                 {!enoughFunds && parseFloat(payrollCost) > 0 && (
                   <div style={{ background: redLight, border: `1px solid rgba(239,68,68,0.25)`, borderRadius: 14, padding: "14px 18px", marginBottom: 20, fontSize: 13, color: red, display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 0 20px rgba(239,68,68,0.1)" }}>
                     <span>⚠️ Need <strong>{(parseFloat(payrollCost) - parseFloat(treasuryBalance)).toFixed(4)} more ETH</strong> to run payroll</span>
                     <button className="btn-hover-glow" style={{ ...btnSm, background: "rgba(239,68,68,0.15)", color: red, border: `1px solid rgba(239,68,68,0.3)` }} onClick={() => setShowDepositModal(true)}>Deposit ETH →</button>
                   </div>
                 )}
-
-                {/* Employee list */}
                 <div style={{ ...glowCard, overflow: "hidden", marginBottom: 20 }}>
                   <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                    <thead>
-                      <tr style={{ background: `linear-gradient(90deg, ${surface2}, transparent)` }}>
-                        {["Employee", "Wallet", "Chain", "Salary", "Last Paid"].map(h => <th key={h} style={{ fontSize: 10, color: textMuted, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", padding: "14px 16px", borderBottom: `1px solid ${border}`, textAlign: "left" }}>{h}</th>)}
-                      </tr>
-                    </thead>
+                    <thead><tr style={{ background: `linear-gradient(90deg, ${surface2}, transparent)` }}>{["Employee", "Wallet", "Chain", "Salary", "Last Paid"].map(h => <th key={h} style={{ fontSize: 10, color: textMuted, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", padding: "14px 16px", borderBottom: `1px solid ${border}`, textAlign: "left" }}>{h}</th>)}</tr></thead>
                     <tbody>
                       {contractEmployees.map((e, idx) => (
                         <tr key={e.id} style={{ borderBottom: idx < contractEmployees.length - 1 ? `1px solid ${border}` : "none" }}>
@@ -689,14 +589,10 @@ export default function App() {
                           <td style={{ padding: "14px 16px", fontSize: 12, color: textMuted }}>{e.lastPaid}</td>
                         </tr>
                       ))}
-                      {contractEmployees.length === 0 && (
-                        <tr><td colSpan={5} style={{ padding: "40px", textAlign: "center", color: textMuted }}>No on-chain employees yet.</td></tr>
-                      )}
+                      {contractEmployees.length === 0 && <tr><td colSpan={5} style={{ padding: "40px", textAlign: "center", color: textMuted }}>No on-chain employees yet.</td></tr>}
                     </tbody>
                   </table>
                 </div>
-
-                {/* Execute bar */}
                 <div style={{ padding: "20px 24px", borderRadius: 18, display: "flex", alignItems: "center", justifyContent: "space-between", background: `linear-gradient(135deg, rgba(124,58,237,0.15), rgba(37,99,235,0.08))`, border: `1px solid rgba(124,58,237,0.25)`, boxShadow: "0 0 30px rgba(124,58,237,0.1)" }}>
                   <div>
                     <div style={{ fontSize: 11, color: "#a78bfa", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 }}>Total to disburse</div>
@@ -704,48 +600,31 @@ export default function App() {
                   </div>
                   <div style={{ display: "flex", gap: 12 }}>
                     <button style={btn} onClick={submitForApproval}>Submit for approval</button>
-                    <button className="btn-hover-glow" style={{ ...btnBrand, padding: "12px 28px", fontSize: 14, fontWeight: 800, opacity: (!isOwner || !enoughFunds || txPending) ? 0.5 : 1 }} onClick={executePayroll} disabled={!isOwner || !enoughFunds || txPending}>
-                      {txPending ? "⏳ Broadcasting..." : "🚀 Execute Payroll"}
-                    </button>
+                    <button className="btn-hover-glow" style={{ ...btnBrand, padding: "12px 28px", fontSize: 14, fontWeight: 800, opacity: (!isOwner || !enoughFunds || txPending) ? 0.5 : 1 }} onClick={executePayroll} disabled={!isOwner || !enoughFunds || txPending}>{txPending ? "⏳ Broadcasting..." : "🚀 Execute Payroll"}</button>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* ── APPROVALS PAGE ──────────────────────────────────────────── */}
+            {/* APPROVALS PAGE */}
             {page === "approvals" && (
               <div>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
                   <div style={{ fontSize: 13, color: textSecondary }}>{pendingApprovals} pending · {approvals.length} total</div>
                   <button style={btnSm} onClick={() => setShowSignerModal(true)}>⚙️ Manage signers</button>
                 </div>
-                {approvals.length === 0 && (
-                  <div style={{ textAlign: "center", padding: "80px 0", color: textMuted }}>
-                    <div style={{ fontSize: 48, marginBottom: 16 }}>✅</div>
-                    <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 8, color: textSecondary }}>No pending approvals</div>
-                    Submit a payroll for approval from the Run Payroll page.
-                  </div>
-                )}
+                {approvals.length === 0 && <div style={{ textAlign: "center", padding: "80px 0", color: textMuted }}><div style={{ fontSize: 48, marginBottom: 16 }}>✅</div><div style={{ fontSize: 15, fontWeight: 600, marginBottom: 8, color: textSecondary }}>No pending approvals</div>Submit a payroll for approval from the Run Payroll page.</div>}
                 {approvals.map(a => (
                   <div key={a.id} className="card-hover" style={{ ...glowCard, marginBottom: 14, overflow: "hidden" }}>
                     <div style={{ padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", background: `linear-gradient(90deg, ${surface2}, transparent)`, borderBottom: `1px solid ${border}` }}>
-                      <div>
-                        <div style={{ fontWeight: 700, fontSize: 15, color: textPrimary }}>{a.total.toFixed(4)} {a.token} — {a.count} employee(s)</div>
-                        <div style={{ fontSize: 12, color: textMuted, marginTop: 4 }}>{a.date} at {a.time}</div>
-                      </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <StatusBadge status={a.status} />
-                        {a.status === "Pending" && <button className="btn-hover-glow" style={btnBrandSm} onClick={() => { setReviewingId(a.id); setShowReviewModal(true); }}>Review →</button>}
-                      </div>
+                      <div><div style={{ fontWeight: 700, fontSize: 15, color: textPrimary }}>{a.total.toFixed(4)} {a.token} — {a.count} employee(s)</div><div style={{ fontSize: 12, color: textMuted, marginTop: 4 }}>{a.date} at {a.time}</div></div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}><StatusBadge status={a.status} />{a.status === "Pending" && <button className="btn-hover-glow" style={btnBrandSm} onClick={() => { setReviewingId(a.id); setShowReviewModal(true); }}>Review →</button>}</div>
                     </div>
                     <div style={{ padding: "14px 20px" }}>
                       {a.signerStatuses.map(s => (
                         <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: `1px solid ${border}` }}>
                           <div style={{ width: 34, height: 34, borderRadius: "50%", background: brandLight, border: `1px solid rgba(124,58,237,0.25)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, color: "#a78bfa" }}>{s.name.split(" ").map(x => x[0]).join("").slice(0, 2)}</div>
-                          <div style={{ flex: 1 }}>
-                            <div style={{ fontSize: 13, fontWeight: 600, color: textPrimary }}>{s.name}</div>
-                            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: textMuted }}>{s.addr}</div>
-                          </div>
+                          <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 600, color: textPrimary }}>{s.name}</div><div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: textMuted }}>{s.addr}</div></div>
                           <StatusBadge status={s.status} />
                         </div>
                       ))}
@@ -755,53 +634,25 @@ export default function App() {
               </div>
             )}
 
-            {/* ── HISTORY PAGE ────────────────────────────────────────────── */}
+            {/* HISTORY PAGE */}
             {page === "history" && (
               <div>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
-                  <div>
-                    <div style={{ fontSize: 13, color: textSecondary }}>{history.length} payroll run(s)</div>
-                    <div style={{ fontSize: 22, fontWeight: 800, color: green, fontFamily: "'Space Mono', monospace", letterSpacing: "-0.02em" }}>{history.reduce((s, r) => s + r.total, 0).toFixed(4)} <span style={{ fontSize: 14, color: textMuted }}>ETH total</span></div>
-                  </div>
-                  <div style={{ display: "flex", gap: 10 }}>
-                    <button style={btnSm} onClick={exportCSV}>📊 Export CSV</button>
-                    <button className="btn-hover-glow" style={btnBrandSm} onClick={exportPDF}>📄 Export PDF</button>
-                  </div>
+                  <div><div style={{ fontSize: 13, color: textSecondary }}>{history.length} payroll run(s)</div><div style={{ fontSize: 22, fontWeight: 800, color: green, fontFamily: "'Space Mono', monospace", letterSpacing: "-0.02em" }}>{history.reduce((s, r) => s + r.total, 0).toFixed(4)} <span style={{ fontSize: 14, color: textMuted }}>ETH total</span></div></div>
+                  <div style={{ display: "flex", gap: 10 }}><button style={btnSm} onClick={exportCSV}>📊 Export CSV</button><button className="btn-hover-glow" style={btnBrandSm} onClick={exportPDF}>📄 Export PDF</button></div>
                 </div>
-                {history.length === 0 && (
-                  <div style={{ textAlign: "center", padding: "80px 0", color: textMuted }}>
-                    <div style={{ fontSize: 48, marginBottom: 16 }}>📋</div>
-                    <div style={{ fontSize: 15, fontWeight: 600, color: textSecondary, marginBottom: 8 }}>No payroll runs yet</div>
-                    Run your first payroll to see history here.
-                  </div>
-                )}
+                {history.length === 0 && <div style={{ textAlign: "center", padding: "80px 0", color: textMuted }}><div style={{ fontSize: 48, marginBottom: 16 }}>📋</div><div style={{ fontSize: 15, fontWeight: 600, color: textSecondary, marginBottom: 8 }}>No payroll runs yet</div></div>}
                 {history.map(r => (
                   <div key={r.id} className="card-hover" style={{ ...glowCard, marginBottom: 14, overflow: "hidden" }}>
-                    <div onClick={() => setExpandedRun(expandedRun === r.id ? null : r.id)}
-                      style={{ padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", background: `linear-gradient(90deg, ${surface2}, transparent)`, cursor: "pointer" }}>
-                      <div>
-                        <div style={{ fontWeight: 700, fontSize: 15, color: textPrimary }}>
-                          Run #{r.id} — <span style={{ color: green, fontFamily: "'Space Mono', monospace" }}>{r.total.toFixed(4)} {r.token}</span>
-                        </div>
-                        <div style={{ fontSize: 12, color: textMuted, marginTop: 4 }}>{r.date} at {r.time} · {r.count} employee(s)</div>
-                      </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <StatusBadge status={r.status} />
-                        <span style={{ color: textMuted, fontSize: 16 }}>{expandedRun === r.id ? "▲" : "▼"}</span>
-                      </div>
+                    <div onClick={() => setExpandedRun(expandedRun === r.id ? null : r.id)} style={{ padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", background: `linear-gradient(90deg, ${surface2}, transparent)`, cursor: "pointer" }}>
+                      <div><div style={{ fontWeight: 700, fontSize: 15, color: textPrimary }}>Run #{r.id} — <span style={{ color: green, fontFamily: "'Space Mono', monospace" }}>{r.total.toFixed(4)} {r.token}</span></div><div style={{ fontSize: 12, color: textMuted, marginTop: 4 }}>{r.date} at {r.time} · {r.count} employee(s)</div></div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}><StatusBadge status={r.status} /><span style={{ color: textMuted, fontSize: 16 }}>{expandedRun === r.id ? "▲" : "▼"}</span></div>
                     </div>
                     {expandedRun === r.id && (
                       <div style={{ padding: "0 20px 16px", animation: "fadeSlideIn 0.2s ease" }}>
                         <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 14 }}>
                           <thead><tr>{["Employee", "Wallet", "Chain", "Amount"].map(h => <th key={h} style={{ fontSize: 10, color: textMuted, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", padding: "10px 12px", borderBottom: `1px solid ${border}`, textAlign: "left" }}>{h}</th>)}</tr></thead>
-                          <tbody>{r.items.map((i, idx) => (
-                            <tr key={idx}>
-                              <td style={{ padding: "12px", fontWeight: 600, color: textPrimary }}>{i.name}</td>
-                              <td style={{ padding: "12px", fontFamily: "'Space Mono', monospace", fontSize: 10, color: textSecondary }}>{i.addr}</td>
-                              <td style={{ padding: "12px" }}><ChainBadge chain={i.chain} /></td>
-                              <td style={{ padding: "12px", color: green, fontWeight: 700, fontFamily: "'Space Mono', monospace" }}>{i.amt.toFixed(4)} {i.token}</td>
-                            </tr>
-                          ))}</tbody>
+                          <tbody>{r.items.map((i, idx) => <tr key={idx}><td style={{ padding: "12px", fontWeight: 600, color: textPrimary }}>{i.name}</td><td style={{ padding: "12px", fontFamily: "'Space Mono', monospace", fontSize: 10, color: textSecondary }}>{i.addr}</td><td style={{ padding: "12px" }}><ChainBadge chain={i.chain} /></td><td style={{ padding: "12px", color: green, fontWeight: 700, fontFamily: "'Space Mono', monospace" }}>{i.amt.toFixed(4)} {i.token}</td></tr>)}</tbody>
                         </table>
                       </div>
                     )}
@@ -813,117 +664,23 @@ export default function App() {
         </div>
       </div>
 
-      {/* ── MODALS ───────────────────────────────────────────────────────── */}
+      {/* DEPOSIT MODAL */}
+      {showDepositModal && <div style={modal}><div style={{ ...modalBox, width: 360 }}><div style={{ fontSize: 18, fontWeight: 800, color: textPrimary, marginBottom: 4 }}>💰 Deposit ETH</div><div style={{ fontSize: 13, color: textSecondary, marginBottom: 20 }}>Treasury: <span style={{ color: green, fontWeight: 700 }}>{parseFloat(treasuryBalance).toFixed(4)} ETH</span></div><label style={{ display: "block", fontSize: 11, color: textMuted, marginBottom: 6, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>Amount (ETH)</label><input type="number" step="0.001" placeholder="e.g. 0.05" value={depositAmount} onChange={e => setDepositAmount(e.target.value)} style={input} /><div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 24 }}><button style={btn} onClick={() => setShowDepositModal(false)}>Cancel</button><button className="btn-hover-glow" style={btnBrand} onClick={depositToTreasury} disabled={txPending}>{txPending ? "⏳ Pending..." : "Deposit"}</button></div></div></div>}
 
-      {/* Deposit */}
-      {showDepositModal && (
-        <div style={modal}>
-          <div style={modalBox}>
-            <div style={{ fontSize: 18, fontWeight: 800, color: textPrimary, marginBottom: 4 }}>💰 Deposit ETH</div>
-            <div style={{ fontSize: 13, color: textSecondary, marginBottom: 20 }}>Treasury balance: <span style={{ color: green, fontWeight: 700 }}>{parseFloat(treasuryBalance).toFixed(4)} ETH</span></div>
-            <label style={{ display: "block", fontSize: 11, color: textMuted, marginBottom: 6, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>Amount (ETH)</label>
-            <input type="number" step="0.001" placeholder="e.g. 0.05" value={depositAmount} onChange={e => setDepositAmount(e.target.value)} style={input} />
-            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 24 }}>
-              <button style={btn} onClick={() => setShowDepositModal(false)}>Cancel</button>
-              <button className="btn-hover-glow" style={btnBrand} onClick={depositToTreasury} disabled={txPending}>{txPending ? "⏳ Pending..." : "Deposit to Treasury"}</button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ADD EMPLOYEE MODAL */}
+      {showAddModal && <div style={modal}><div style={modalBox}><div style={{ fontSize: 18, fontWeight: 800, color: textPrimary, marginBottom: 4 }}>{editingEmployee ? "✏️ Edit Employee" : "👤 Add Employee"}</div><div style={{ fontSize: 12, color: textSecondary, marginBottom: 24, padding: "8px 12px", background: brandLight, borderRadius: 8, border: `1px solid rgba(124,58,237,0.2)` }}>⛓ Blockchain transaction on Base Sepolia</div>{[["Full name", "name", "text", "Sarah Chen"], ["Email (optional)", "email", "email", "sarah@company.com"], ["Wallet address", "addr", "text", "0x..."], ["Monthly salary (ETH)", "salary", "number", "0.05"]].map(([label, field, type, ph]) => (<div key={field} style={{ marginBottom: 16 }}><label style={{ display: "block", fontSize: 11, color: textMuted, marginBottom: 6, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>{label}</label><input type={type} placeholder={ph} value={formData[field]} onChange={e => setFormData({ ...formData, [field]: e.target.value })} style={input} /></div>))}<div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 8 }}><button style={btn} onClick={() => setShowAddModal(false)}>Cancel</button><button className="btn-hover-glow" style={btnBrand} onClick={saveEmployee} disabled={txPending}>{txPending ? "⏳ Broadcasting..." : "Add to Blockchain"}</button></div></div></div>}
 
-      {/* Add Employee */}
-      {showAddModal && (
-        <div style={modal}>
-          <div style={modalBox}>
-            <div style={{ fontSize: 18, fontWeight: 800, color: textPrimary, marginBottom: 4 }}>{editingEmployee ? "✏️ Edit Employee" : "👤 Add Employee"}</div>
-            <div style={{ fontSize: 12, color: textSecondary, marginBottom: 24, padding: "8px 12px", background: brandLight, borderRadius: 8, border: `1px solid rgba(124,58,237,0.2)` }}>⛓ This creates a blockchain transaction on Base Sepolia</div>
-            {[["Full name", "name", "text", "Sarah Chen"], ["Email (optional)", "email", "email", "sarah@company.com"], ["Wallet address", "addr", "text", "0x..."], ["Monthly salary (ETH)", "salary", "number", "0.05"]].map(([label, field, type, ph]) => (
-              <div key={field} style={{ marginBottom: 16 }}>
-                <label style={{ display: "block", fontSize: 11, color: textMuted, marginBottom: 6, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>{label}</label>
-                <input type={type} placeholder={ph} value={formData[field]} onChange={e => setFormData({ ...formData, [field]: e.target.value })} style={input} />
-              </div>
-            ))}
-            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 8 }}>
-              <button style={btn} onClick={() => setShowAddModal(false)}>Cancel</button>
-              <button className="btn-hover-glow" style={btnBrand} onClick={saveEmployee} disabled={txPending}>{txPending ? "⏳ Broadcasting..." : "Add to Blockchain"}</button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* CSV MODAL */}
+      {showCsvModal && <div style={modal}><div style={modalBox}><div style={{ fontSize: 18, fontWeight: 800, color: textPrimary, marginBottom: 8 }}>📂 CSV Import</div><div style={{ fontSize: 12, color: textMuted, marginBottom: 16 }}>Columns: <code style={{ background: surface2, padding: "2px 8px", borderRadius: 6, color: "#a78bfa" }}>name, email, wallet, chain, salary</code></div><textarea rows={5} placeholder="Paste CSV data here..." value={csvText} onChange={e => setCsvText(e.target.value)} style={{ ...input, resize: "vertical" }} /><div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 20 }}><button style={btn} onClick={() => setShowCsvModal(false)}>Cancel</button><button className="btn-hover-glow" style={btnBrand} onClick={importCsv}>Import</button></div></div></div>}
 
-      {/* CSV Import */}
-      {showCsvModal && (
-        <div style={modal}>
-          <div style={modalBox}>
-            <div style={{ fontSize: 18, fontWeight: 800, color: textPrimary, marginBottom: 8 }}>📂 CSV Import</div>
-            <div style={{ fontSize: 12, color: textMuted, marginBottom: 16 }}>Columns: <code style={{ background: surface2, padding: "2px 8px", borderRadius: 6, color: "#a78bfa", fontFamily: "'Space Mono', monospace" }}>name, email, wallet, chain, salary</code></div>
-            <textarea rows={5} placeholder="Paste CSV data here..." value={csvText} onChange={e => setCsvText(e.target.value)} style={{ ...input, resize: "vertical", fontFamily: "'Space Mono', monospace", fontSize: 12 }} />
-            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 20 }}>
-              <button style={btn} onClick={() => setShowCsvModal(false)}>Cancel</button>
-              <button className="btn-hover-glow" style={btnBrand} onClick={importCsv}>Import</button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* SIGNERS MODAL */}
+      {showSignerModal && <div style={modal}><div style={modalBox}><div style={{ fontSize: 18, fontWeight: 800, color: textPrimary, marginBottom: 8 }}>⚙️ Approval Signers</div><div style={{ fontSize: 12, color: textSecondary, marginBottom: 20 }}>Payroll requires sign-off from these addresses.</div>{signers.map(s => (<div key={s.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 0", borderBottom: `1px solid ${border}` }}><div style={{ width: 36, height: 36, borderRadius: "50%", background: brandLight, border: `1px solid rgba(124,58,237,0.25)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, color: "#a78bfa" }}>{s.name.split(" ").map(x => x[0]).join("").slice(0, 2)}</div><div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 600, color: textPrimary }}>{s.name}</div><div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: textMuted }}>{s.addr}</div></div><button style={btnRedSm} onClick={() => setSigners(signers.filter(x => x.id !== s.id))}>Remove</button></div>))}<div style={{ display: "flex", gap: 8, marginTop: 16 }}><input placeholder="Name" value={newSignerName} onChange={e => setNewSignerName(e.target.value)} style={{ ...input, flex: 1 }} /><input placeholder="0x..." value={newSignerAddr} onChange={e => setNewSignerAddr(e.target.value)} style={{ ...input, flex: 2 }} /><button style={btnBrandSm} onClick={() => { if (!newSignerName || !newSignerAddr) return; setSigners([...signers, { id: nextSignerId, name: newSignerName, addr: newSignerAddr }]); setNextSignerId(nextSignerId + 1); setNewSignerName(""); setNewSignerAddr(""); }}>Add</button></div><div style={{ display: "flex", justifyContent: "flex-end", marginTop: 20 }}><button className="btn-hover-glow" style={btnBrand} onClick={() => setShowSignerModal(false)}>Done</button></div></div></div>}
 
-      {/* Signers */}
-      {showSignerModal && (
-        <div style={modal}>
-          <div style={modalBox}>
-            <div style={{ fontSize: 18, fontWeight: 800, color: textPrimary, marginBottom: 8 }}>⚙️ Approval Signers</div>
-            <div style={{ fontSize: 12, color: textSecondary, marginBottom: 20 }}>Payroll requires sign-off from these addresses before execution.</div>
-            {signers.map(s => (
-              <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 0", borderBottom: `1px solid ${border}` }}>
-                <div style={{ width: 36, height: 36, borderRadius: "50%", background: brandLight, border: `1px solid rgba(124,58,237,0.25)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, color: "#a78bfa" }}>{s.name.split(" ").map(x => x[0]).join("").slice(0, 2)}</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: textPrimary }}>{s.name}</div>
-                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: textMuted }}>{s.addr}</div>
-                </div>
-                <button style={btnRedSm} onClick={() => setSigners(signers.filter(x => x.id !== s.id))}>Remove</button>
-              </div>
-            ))}
-            <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
-              <input placeholder="Name" value={newSignerName} onChange={e => setNewSignerName(e.target.value)} style={{ ...input, flex: 1 }} />
-              <input placeholder="0x..." value={newSignerAddr} onChange={e => setNewSignerAddr(e.target.value)} style={{ ...input, flex: 2 }} />
-              <button style={btnBrandSm} onClick={() => { if (!newSignerName || !newSignerAddr) return; setSigners([...signers, { id: nextSignerId, name: newSignerName, addr: newSignerAddr }]); setNextSignerId(nextSignerId + 1); setNewSignerName(""); setNewSignerAddr(""); }}>Add</button>
-            </div>
-            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 20 }}>
-              <button className="btn-hover-glow" style={btnBrand} onClick={() => setShowSignerModal(false)}>Done</button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* REVIEW MODAL */}
+      {showReviewModal && (() => { const a = approvals.find(x => x.id === reviewingId); if (!a) return null; return <div style={modal}><div style={{ ...modalBox, width: 460 }}><div style={{ fontSize: 18, fontWeight: 800, color: textPrimary, marginBottom: 20 }}>🔍 Review Payroll</div>{[["Date", `${a.date} ${a.time}`], ["Employees", a.count], ["Token", a.token], ["Total", `${a.total.toFixed(4)} ETH`]].map(([label, val]) => <div key={label} style={{ display: "flex", justifyContent: "space-between", fontSize: 14, padding: "10px 0", borderBottom: `1px solid ${border}` }}><span style={{ color: textMuted, fontWeight: 600 }}>{label}</span><span style={{ fontWeight: label === "Total" ? 800 : 600, color: label === "Total" ? green : textPrimary }}>{val}</span></div>)}<div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 24 }}><button style={btnRed} onClick={rejectApproval}>Reject</button><button className="btn-hover-glow" style={btnGreen} onClick={approveAndExecute} disabled={txPending}>{txPending ? "⏳ Broadcasting..." : "✓ Approve & Execute"}</button></div></div></div>; })()}
 
-      {/* Review */}
-      {showReviewModal && (() => { const a = approvals.find(x => x.id === reviewingId); if (!a) return null; return (
-        <div style={modal}>
-          <div style={{ ...modalBox, width: 460 }}>
-            <div style={{ fontSize: 18, fontWeight: 800, color: textPrimary, marginBottom: 20 }}>🔍 Review Payroll</div>
-            {[["Date", `${a.date} ${a.time}`], ["Employees", a.count], ["Token", a.token], ["Total", `${a.total.toFixed(4)} ETH`]].map(([label, val]) => (
-              <div key={label} style={{ display: "flex", justifyContent: "space-between", fontSize: 14, padding: "10px 0", borderBottom: `1px solid ${border}` }}>
-                <span style={{ color: textMuted, fontWeight: 600 }}>{label}</span>
-                <span style={{ fontWeight: label === "Total" ? 800 : 600, color: label === "Total" ? green : textPrimary, fontFamily: label === "Total" ? "'Space Mono', monospace" : "inherit" }}>{val}</span>
-              </div>
-            ))}
-            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 24 }}>
-              <button style={btnRed} onClick={rejectApproval}>Reject</button>
-              <button className="btn-hover-glow" style={btnGreen} onClick={approveAndExecute} disabled={txPending}>{txPending ? "⏳ Broadcasting..." : "✓ Approve & Execute"}</button>
-            </div>
-          </div>
-        </div>
-      ); })()}
-
-      {/* Success */}
-      {success && (
-        <div style={{ ...modal, backdropFilter: "blur(16px)" }}>
-          <div style={{ ...modalBox, textAlign: "center", width: 380, animation: "scaleIn 0.35s cubic-bezier(0.16,1,0.3,1) forwards" }}>
-            <div style={{ width: 72, height: 72, borderRadius: "50%", background: success.bg, border: `1px solid ${success.color}33`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", fontSize: 32, boxShadow: `0 0 50px ${success.color}44`, animation: "success-pop 0.4s ease forwards" }}>{success.icon}</div>
-            <div style={{ fontSize: 20, fontWeight: 800, marginBottom: 10, color: success.color }}>{success.title}</div>
-            <div style={{ fontSize: 14, color: textSecondary, lineHeight: 1.7 }}>{success.msg}</div>
-            <button className="btn-hover-glow" style={{ ...btnBrand, marginTop: 28, width: "100%", padding: "14px", fontSize: 15, fontWeight: 800 }} onClick={() => setSuccess(null)}>Done ✓</button>
-          </div>
-        </div>
-      )}
+      {/* SUCCESS MODAL */}
+      {success && <div style={{ ...modal, backdropFilter: "blur(16px)" }}><div style={{ ...modalBox, textAlign: "center", width: 380, animation: "scaleIn 0.35s cubic-bezier(0.16,1,0.3,1) forwards" }}><div style={{ width: 72, height: 72, borderRadius: "50%", background: success.bg, border: `1px solid ${success.color}33`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", fontSize: 32, boxShadow: `0 0 50px ${success.color}44`, animation: "success-pop 0.4s ease forwards" }}>{success.icon}</div><div style={{ fontSize: 20, fontWeight: 800, marginBottom: 10, color: success.color }}>{success.title}</div><div style={{ fontSize: 14, color: textSecondary, lineHeight: 1.7 }}>{success.msg}</div><button className="btn-hover-glow" style={{ ...btnBrand, marginTop: 28, width: "100%", padding: "14px", fontSize: 15, fontWeight: 800 }} onClick={() => setSuccess(null)}>Done ✓</button></div></div>}
     </div>
   );
 }
