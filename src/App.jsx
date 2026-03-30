@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
-import { useAccount, useDisconnect, useReadContract, useWriteContract, useWaitForTransactionReceipt, usePublicClient } from 'wagmi';
+import { useAccount, useDisconnect, useReadContract, useWriteContract, usePublicClient } from 'wagmi';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { parseEther, formatEther } from 'viem';
 import { supabase } from './supabase';
 
-// ── Contract Config ──────────────────────────────────────────────────────────
 const CONTRACT_ADDRESS = "0x55271b6f111178A9e53413995eaef2867dea8E02";
 const CONTRACT_ABI = [
   { name: "addEmployee", type: "function", stateMutability: "nonpayable", inputs: [{ name: "wallet", type: "address" }, { name: "name", type: "string" }, { name: "salaryWei", type: "uint256" }], outputs: [{ name: "id", type: "uint256" }] },
@@ -20,7 +19,6 @@ const CONTRACT_ABI = [
 ];
 
 const CHAINS = ["ERC20", "BEP20", "Polygon", "Arbitrum", "Optimism"];
-const TOKENS = ["ETH", "USDT", "USDC"];
 
 const chainClass = (c) => c.toLowerCase().replace(/\s/g, "");
 
@@ -31,6 +29,7 @@ const ChainBadge = ({ chain }) => {
     polygon: { bg: "#2D1F6E", color: "#A78BFA" },
     arbitrum: { bg: "#063D33", color: "#10B981" },
     optimism: { bg: "#3D0614", color: "#F87171" },
+    "base sepolia": { bg: "#063D33", color: "#10B981" },
   };
   const s = colors[chainClass(chain)] || { bg: "#1E1E2E", color: "#9999BB" };
   return (
@@ -99,10 +98,7 @@ export default function App() {
   const [pageKey, setPageKey] = useState(0);
   const [employees, setEmployees] = useState([]);
   const [contractEmployees, setContractEmployees] = useState([]);
-  const [payAmounts, setPayAmounts] = useState({});
-  const [payTokens, setPayTokens] = useState({});
   const [chainFilter, setChainFilter] = useState("All");
-  const [payFilter, setPayFilter] = useState("All");
   const [searchQ, setSearchQ] = useState("");
   const [history, setHistory] = useState([]);
   const [approvals, setApprovals] = useState([]);
@@ -112,11 +108,8 @@ export default function App() {
     { id: 2, name: "CEO — James Wu", addr: "0xCEO2...5678" },
   ]);
   const [nextSignerId, setNextSignerId] = useState(3);
-  const [selectedEmployees, setSelectedEmployees] = useState({});
-  const [globalToken, setGlobalToken] = useState("ETH");
   const [showAddModal, setShowAddModal] = useState(false);
   const [showCsvModal, setShowCsvModal] = useState(false);
-  const [showSetAllModal, setShowSetAllModal] = useState(false);
   const [showSignerModal, setShowSignerModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [showDepositModal, setShowDepositModal] = useState(false);
@@ -126,27 +119,22 @@ export default function App() {
   const [success, setSuccess] = useState(null);
   const [expandedRun, setExpandedRun] = useState(null);
   const [formData, setFormData] = useState({ name: "", email: "", addr: "", chain: "ERC20", salary: "" });
-  const [bulkAmount, setBulkAmount] = useState("");
   const [csvText, setCsvText] = useState("");
   const [newSignerName, setNewSignerName] = useState("");
   const [newSignerAddr, setNewSignerAddr] = useState("");
   const [exportPreview, setExportPreview] = useState(null);
 
-  // ── Wagmi contract hooks ──────────────────────────────────────────────────
   const { writeContractAsync } = useWriteContract();
 
   const { data: treasuryData, refetch: refetchTreasury } = useReadContract({
     address: CONTRACT_ADDRESS, abi: CONTRACT_ABI, functionName: 'treasuryBalance',
   });
-
   const { data: payrollCostData, refetch: refetchPayrollCost } = useReadContract({
     address: CONTRACT_ADDRESS, abi: CONTRACT_ABI, functionName: 'totalPayrollCost',
   });
-
   const { data: ownerData } = useReadContract({
     address: CONTRACT_ADDRESS, abi: CONTRACT_ABI, functionName: 'owner',
   });
-
   const { data: activeEmployeesData, refetch: refetchEmployees } = useReadContract({
     address: CONTRACT_ADDRESS, abi: CONTRACT_ABI, functionName: 'getActiveEmployees',
   });
@@ -156,26 +144,19 @@ export default function App() {
   const isOwner = ownerData && address ? ownerData.toLowerCase() === address.toLowerCase() : false;
   const enoughFunds = parseFloat(treasuryBalance) >= parseFloat(payrollCost) && parseFloat(payrollCost) > 0;
 
-  // Load contract employees when data changes
   useEffect(() => {
     if (activeEmployeesData) {
       const [ids, wallets, names, salaries, lastPaids] = activeEmployeesData;
       const emps = ids.map((id, i) => ({
-        id: id.toString(),
-        contractId: id,
-        name: names[i],
-        addr: wallets[i],
+        id: id.toString(), contractId: id, name: names[i], addr: wallets[i],
         salary: formatEther(salaries[i]),
         lastPaid: lastPaids[i].toString() === '0' ? 'Never' : new Date(Number(lastPaids[i]) * 1000).toLocaleDateString(),
-        chain: "Base Sepolia",
-        email: "",
-        isOnChain: true,
+        chain: "Base Sepolia", email: "", isOnChain: true,
       }));
       setContractEmployees(emps);
     }
   }, [activeEmployeesData]);
 
-  // Colors
   const bg = "#0A0A0F", surface = "#13131A", surface2 = "#1A1A28", border = "#1E1E2E", border2 = "#2A2A3E";
   const brand = "#7C5CFC", brandDark = "#5C3FE0", brandLight = "#2D1F6E";
   const green = "#10B981", greenLight = "#063D1F", amber = "#F59E0B", amberLight = "#2D1F06";
@@ -188,8 +169,8 @@ export default function App() {
   const btnRed = { ...btn, background: redLight, border: `1px solid ${red}44`, color: red };
   const btnSm = { ...btn, padding: "5px 12px", fontSize: 12 };
   const btnBrandSm = { ...btnSm, background: `linear-gradient(135deg, ${brand}, ${brandDark})`, color: "#fff", border: "none", boxShadow: `0 0 12px ${brand}44` };
+  const btnRedSm = { ...btnSm, background: redLight, border: `1px solid ${red}44`, color: red };
   const input = { width: "100%", padding: "9px 12px", border: `1px solid ${border}`, borderRadius: 8, fontSize: 13, background: surface2, color: textPrimary, fontFamily: "inherit", boxSizing: "border-box", outline: "none", transition: "border-color 0.15s" };
-  const select = { ...input, width: "auto" };
 
   useEffect(() => { loadEmployees(); loadHistory(); }, []);
 
@@ -207,7 +188,6 @@ export default function App() {
     }
   }
 
-  // Merge supabase employees + contract employees
   const allEmployees = [
     ...contractEmployees,
     ...employees.filter(e => !contractEmployees.find(c => c.addr?.toLowerCase() === e.addr?.toLowerCase())),
@@ -219,14 +199,6 @@ export default function App() {
     return ms && mc;
   });
 
-  const payFilteredEmployees = allEmployees.filter((e) => payFilter === "All" || e.chain === payFilter);
-
-  const totalPayout = payFilteredEmployees.reduce((sum, e) => {
-    if (selectedEmployees[e.id]) return sum + (parseFloat(payAmounts[e.id]) || 0);
-    return sum;
-  }, 0);
-
-  const selectedCount = Object.values(selectedEmployees).filter(Boolean).length;
   const pendingApprovals = approvals.filter((a) => a.status === "Pending").length;
   const shortAddress = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "";
 
@@ -249,32 +221,19 @@ export default function App() {
   async function saveEmployee() {
     if (!formData.name || !formData.addr) return;
     if (!isConnected) { alert("Connect your wallet first."); return; }
-
     try {
       setTxPending(true);
-      // Add to smart contract
       const salaryEth = parseFloat(formData.salary) || 0.001;
       const salaryWei = parseEther(salaryEth.toString());
-
       const txHash = await writeContractAsync({
-        address: CONTRACT_ADDRESS,
-        abi: CONTRACT_ABI,
-        functionName: 'addEmployee',
+        address: CONTRACT_ADDRESS, abi: CONTRACT_ABI, functionName: 'addEmployee',
         args: [formData.addr, formData.name, salaryWei],
       });
-
-      // Wait for confirmation
       await publicClient.waitForTransactionReceipt({ hash: txHash });
-
-      // Also save to Supabase for email/extra info
-      const empData = { name: formData.name, email: formData.email, addr: formData.addr, chain: formData.chain, salary: salaryEth };
-      await supabase.from('employees').insert([empData]);
-
-      // Refresh
+      await supabase.from('employees').insert([{ name: formData.name, email: formData.email, addr: formData.addr, chain: formData.chain, salary: salaryEth }]);
       await refetchEmployees();
       await loadEmployees();
       await refetchPayrollCost();
-
       setSuccess({ icon: "✓", title: "Employee added!", msg: `${formData.name} has been added to the blockchain payroll.`, bg: greenLight, color: green });
       triggerConfetti();
     } catch (e) {
@@ -283,6 +242,109 @@ export default function App() {
       setTxPending(false);
       setShowAddModal(false);
     }
+  }
+
+  async function removeEmployee(contractId, name) {
+    if (!isConnected) { alert("Connect your wallet first."); return; }
+    if (!isOwner) { alert("Only the contract owner can remove employees."); return; }
+    if (!window.confirm(`Remove ${name} from payroll? This cannot be undone.`)) return;
+    try {
+      setTxPending(true);
+      const txHash = await writeContractAsync({
+        address: CONTRACT_ADDRESS, abi: CONTRACT_ABI,
+        functionName: 'deactivateEmployee',
+        args: [contractId],
+      });
+      await publicClient.waitForTransactionReceipt({ hash: txHash });
+      await refetchEmployees();
+      await refetchPayrollCost();
+      setSuccess({ icon: "✓", title: "Employee removed!", msg: `${name} has been deactivated from the blockchain payroll.`, bg: redLight, color: red });
+    } catch (e) {
+      alert("Failed: " + (e.shortMessage || e.message));
+    } finally {
+      setTxPending(false);
+    }
+  }
+
+  async function depositToTreasury() {
+    if (!depositAmount || parseFloat(depositAmount) <= 0) { alert("Enter a valid amount."); return; }
+    try {
+      setTxPending(true);
+      const txHash = await writeContractAsync({
+        address: CONTRACT_ADDRESS, abi: CONTRACT_ABI, functionName: 'deposit',
+        value: parseEther(depositAmount),
+      });
+      await publicClient.waitForTransactionReceipt({ hash: txHash });
+      await refetchTreasury();
+      setDepositAmount("");
+      setShowDepositModal(false);
+      setSuccess({ icon: "✓", title: "Deposit successful!", msg: `${depositAmount} ETH added to treasury.`, bg: greenLight, color: green });
+    } catch (e) {
+      alert("Deposit failed: " + (e.shortMessage || e.message));
+    } finally {
+      setTxPending(false);
+    }
+  }
+
+  async function executePayroll() {
+    if (!isConnected) { alert("Connect your treasury wallet first."); return; }
+    if (!isOwner) { alert("Only the contract owner can run payroll."); return; }
+    if (contractEmployees.length === 0) { alert("No employees on the contract yet."); return; }
+    if (!enoughFunds) { alert(`Treasury needs ${(parseFloat(payrollCost) - parseFloat(treasuryBalance)).toFixed(4)} more ETH.`); return; }
+    try {
+      setTxPending(true);
+      const txHash = await writeContractAsync({ address: CONTRACT_ADDRESS, abi: CONTRACT_ABI, functionName: 'runPayroll' });
+      await publicClient.waitForTransactionReceipt({ hash: txHash });
+      const items = contractEmployees.map(e => ({ name: e.name, chain: e.chain, amt: parseFloat(e.salary), token: "ETH", addr: e.addr, email: "" }));
+      const total = contractEmployees.reduce((s, e) => s + parseFloat(e.salary), 0);
+      await supabase.from('payroll_runs').insert([{ run_date: new Date().toLocaleDateString(), run_time: new Date().toLocaleTimeString(), total, token: "ETH", status: "Success", items }]);
+      await loadHistory();
+      await refetchTreasury();
+      await refetchEmployees();
+      setSuccess({ icon: "✓", title: "Payroll executed on-chain! 🎉", msg: `${contractEmployees.length} employee(s) paid ${parseFloat(payrollCost).toFixed(4)} ETH. Confirmed on Base Sepolia!`, bg: greenLight, color: green });
+      triggerConfetti();
+    } catch (e) {
+      alert("Payroll failed: " + (e.shortMessage || e.message));
+    } finally {
+      setTxPending(false);
+    }
+  }
+
+  async function submitForApproval() {
+    if (!isConnected) { alert("Connect your treasury wallet first."); return; }
+    if (contractEmployees.length === 0) { alert("No employees yet."); return; }
+    const items = contractEmployees.map(e => ({ name: e.name, chain: e.chain, amt: parseFloat(e.salary), token: "ETH", addr: e.addr, email: "" }));
+    const total = contractEmployees.reduce((s, e) => s + parseFloat(e.salary), 0);
+    const req = { id: nextApprovalId, date: new Date().toLocaleDateString(), time: new Date().toLocaleTimeString(), count: items.length, total, token: "ETH", items, status: "Pending", signerStatuses: signers.map((s) => ({ ...s, status: "Pending" })) };
+    setApprovals([req, ...approvals]);
+    setNextApprovalId(nextApprovalId + 1);
+    setSuccess({ icon: "⏳", title: "Submitted for approval!", msg: `${total.toFixed(4)} ETH sent to ${signers.length} signer(s) for review.`, bg: amberLight, color: amber });
+  }
+
+  async function approveAndExecute() {
+    const a = approvals.find((x) => x.id === reviewingId);
+    if (!a) return;
+    try {
+      setTxPending(true);
+      const txHash = await writeContractAsync({ address: CONTRACT_ADDRESS, abi: CONTRACT_ABI, functionName: 'runPayroll' });
+      await publicClient.waitForTransactionReceipt({ hash: txHash });
+      setApprovals(approvals.map((x) => x.id === reviewingId ? { ...x, status: "Approved", signerStatuses: x.signerStatuses.map((s) => ({ ...s, status: "Approved" })) } : x));
+      await supabase.from('payroll_runs').insert([{ run_date: a.date, run_time: a.time, total: a.total, token: a.token, status: "Approved", items: a.items }]);
+      await loadHistory();
+      await refetchTreasury();
+      setShowReviewModal(false);
+      triggerConfetti();
+      setSuccess({ icon: "✓", title: "Approved & executed on-chain!", msg: `Payroll broadcast on Base Sepolia.`, bg: greenLight, color: green });
+    } catch (e) {
+      alert("Failed: " + (e.shortMessage || e.message));
+    } finally {
+      setTxPending(false);
+    }
+  }
+
+  function rejectApproval() {
+    setApprovals(approvals.map((x) => x.id === reviewingId ? { ...x, status: "Rejected", signerStatuses: x.signerStatuses.map((s) => ({ ...s, status: "Rejected" })) } : x));
+    setShowReviewModal(false);
   }
 
   async function importCsv() {
@@ -302,146 +364,10 @@ export default function App() {
     setCsvText("");
   }
 
-  function loadPresets() {
-    const newAmounts = { ...payAmounts };
-    const newSelected = { ...selectedEmployees };
-    payFilteredEmployees.forEach((e) => { if (e.salary) { newAmounts[e.id] = e.salary; newSelected[e.id] = true; } });
-    setPayAmounts(newAmounts);
-    setSelectedEmployees(newSelected);
-  }
-
-  function applyBulk() {
-    const newAmounts = { ...payAmounts };
-    const newSelected = { ...selectedEmployees };
-    payFilteredEmployees.forEach((e) => { newAmounts[e.id] = bulkAmount; newSelected[e.id] = true; });
-    setPayAmounts(newAmounts);
-    setSelectedEmployees(newSelected);
-    setBulkAmount("");
-    setShowSetAllModal(false);
-  }
-
-  function collectPayrollData() {
-    const items = [];
-    let total = 0;
-    payFilteredEmployees.forEach((e) => {
-      if (selectedEmployees[e.id]) {
-        const amt = parseFloat(payAmounts[e.id]) || 0;
-        const tok = payTokens[e.id] || globalToken;
-        items.push({ name: e.name, chain: e.chain, amt, token: tok, addr: e.addr, email: e.email || "" });
-        total += amt;
-      }
-    });
-    return { items, total };
-  }
-
-  // ── Deposit ETH to treasury ───────────────────────────────────────────────
-  async function depositToTreasury() {
-    if (!depositAmount || parseFloat(depositAmount) <= 0) { alert("Enter a valid amount."); return; }
-    try {
-      setTxPending(true);
-      const txHash = await writeContractAsync({
-        address: CONTRACT_ADDRESS,
-        abi: CONTRACT_ABI,
-        functionName: 'deposit',
-        value: parseEther(depositAmount),
-      });
-      await publicClient.waitForTransactionReceipt({ hash: txHash });
-      await refetchTreasury();
-      setDepositAmount("");
-      setShowDepositModal(false);
-      setSuccess({ icon: "✓", title: "Deposit successful!", msg: `${depositAmount} ETH added to treasury.`, bg: greenLight, color: green });
-    } catch (e) {
-      alert("Deposit failed: " + (e.shortMessage || e.message));
-    } finally {
-      setTxPending(false);
-    }
-  }
-
-  // ── Run payroll on-chain ──────────────────────────────────────────────────
-  async function executePayroll() {
-    if (!isConnected) { alert("Connect your treasury wallet first."); return; }
-    if (!isOwner) { alert("Only the contract owner can run payroll."); return; }
-    if (contractEmployees.length === 0) { alert("No employees on the contract yet."); return; }
-    if (!enoughFunds) { alert(`Treasury has ${parseFloat(treasuryBalance).toFixed(4)} ETH but payroll needs ${parseFloat(payrollCost).toFixed(4)} ETH. Please deposit more.`); return; }
-
-    try {
-      setTxPending(true);
-      const txHash = await writeContractAsync({
-        address: CONTRACT_ADDRESS,
-        abi: CONTRACT_ABI,
-        functionName: 'runPayroll',
-      });
-      await publicClient.waitForTransactionReceipt({ hash: txHash });
-
-      // Save to history in Supabase
-      const items = contractEmployees.map(e => ({ name: e.name, chain: e.chain, amt: parseFloat(e.salary), token: "ETH", addr: e.addr, email: "" }));
-      const total = contractEmployees.reduce((s, e) => s + parseFloat(e.salary), 0);
-      const runData = { run_date: new Date().toLocaleDateString(), run_time: new Date().toLocaleTimeString(), total, token: "ETH", status: "Success", items };
-      await supabase.from('payroll_runs').insert([runData]);
-      await loadHistory();
-      await refetchTreasury();
-      await refetchEmployees();
-
-      setSuccess({ icon: "✓", title: "Payroll executed on-chain! 🎉", msg: `${contractEmployees.length} employee(s) paid ${parseFloat(payrollCost).toFixed(4)} ETH total. TX confirmed on Base Sepolia!`, bg: greenLight, color: green });
-      triggerConfetti();
-    } catch (e) {
-      alert("Payroll failed: " + (e.shortMessage || e.message));
-    } finally {
-      setTxPending(false);
-    }
-  }
-
-  async function submitForApproval() {
-    if (!isConnected) { alert("Connect your treasury wallet first."); return; }
-    const { items, total } = collectPayrollData();
-    if (items.length === 0) { alert("Select at least one employee."); return; }
-    const req = { id: nextApprovalId, date: new Date().toLocaleDateString(), time: new Date().toLocaleTimeString(), count: items.length, total, token: globalToken, items, status: "Pending", signerStatuses: signers.map((s) => ({ ...s, status: "Pending" })) };
-    setApprovals([req, ...approvals]);
-    setNextApprovalId(nextApprovalId + 1);
-    setSuccess({ icon: "⏳", title: "Submitted for approval!", msg: `${total.toFixed(4)} ${globalToken} sent to ${signers.length} signer(s) for review.`, bg: amberLight, color: amber });
-    setPayAmounts({});
-    setSelectedEmployees({});
-  }
-
-  async function approveAndExecute() {
-    const a = approvals.find((x) => x.id === reviewingId);
-    if (!a) return;
-    try {
-      setTxPending(true);
-      const txHash = await writeContractAsync({
-        address: CONTRACT_ADDRESS,
-        abi: CONTRACT_ABI,
-        functionName: 'runPayroll',
-      });
-      await publicClient.waitForTransactionReceipt({ hash: txHash });
-      const updated = approvals.map((x) => x.id === reviewingId ? { ...x, status: "Approved", signerStatuses: x.signerStatuses.map((s) => ({ ...s, status: "Approved" })) } : x);
-      setApprovals(updated);
-      const runData = { run_date: a.date, run_time: a.time, total: a.total, token: a.token, status: "Approved", items: a.items };
-      await supabase.from('payroll_runs').insert([runData]);
-      await loadHistory();
-      await refetchTreasury();
-      setShowReviewModal(false);
-      triggerConfetti();
-      setSuccess({ icon: "✓", title: "Approved & executed on-chain!", msg: `Payroll approved and broadcast on Base Sepolia.`, bg: greenLight, color: green });
-    } catch (e) {
-      alert("Failed: " + (e.shortMessage || e.message));
-    } finally {
-      setTxPending(false);
-    }
-  }
-
-  function rejectApproval() {
-    const updated = approvals.map((x) => x.id === reviewingId ? { ...x, status: "Rejected", signerStatuses: x.signerStatuses.map((s) => ({ ...s, status: "Rejected" })) } : x);
-    setApprovals(updated);
-    setShowReviewModal(false);
-  }
-
   function exportCSV() {
     if (history.length === 0) { alert("No history yet."); return; }
-    let csv = "Run #,Date,Employee,Email,Wallet,Chain,Amount,Token,Status\n";
-    history.forEach((r) => { r.items.forEach((i) => { csv += `${r.id},"${r.date} ${r.time}","${i.name}","${i.email || ""}","${i.addr}",${i.chain},${i.amt},${i.token},${r.status}\n`; }); });
-    const total = history.reduce((s, r) => s + r.total, 0);
-    csv += `\nTotal disbursed,,,,,,${total.toFixed(4)},,`;
+    let csv = "Run #,Date,Employee,Wallet,Chain,Amount,Token,Status\n";
+    history.forEach((r) => { r.items.forEach((i) => { csv += `${r.id},"${r.date} ${r.time}","${i.name}","${i.addr}",${i.chain},${i.amt},${i.token},${r.status}\n`; }); });
     setExportPreview({ title: "Export CSV", content: csv, filename: "payroll-report.csv", type: "text/csv" });
   }
 
@@ -548,12 +474,8 @@ export default function App() {
                       <div><div style={{ fontSize: 10, color: textMuted, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Role</div><div style={{ fontSize: 13, fontWeight: 700, color: isOwner ? amber : textSecondary }}>{isOwner ? "👑 Owner" : "Viewer"}</div></div>
                     </div>
                     <div style={{ display: "flex", gap: 8 }}>
-                      <button onClick={() => setShowDepositModal(true)} style={{ flex: 1, padding: "10px", border: `1px solid ${brand}44`, borderRadius: 10, cursor: "pointer", background: `${brand}22`, color: brand, fontSize: 13, fontFamily: "inherit", fontWeight: 600, transition: "all 0.15s" }}>
-                        + Deposit ETH
-                      </button>
-                      <button onClick={() => disconnect()} style={{ flex: 1, padding: "10px", border: `1px solid ${red}44`, borderRadius: 10, cursor: "pointer", background: redLight, color: red, fontSize: 13, fontFamily: "inherit", fontWeight: 600, transition: "all 0.15s" }}>
-                        Disconnect
-                      </button>
+                      <button onClick={() => setShowDepositModal(true)} style={{ flex: 1, padding: "10px", border: `1px solid ${brand}44`, borderRadius: 10, cursor: "pointer", background: `${brand}22`, color: brand, fontSize: 13, fontFamily: "inherit", fontWeight: 600 }}>+ Deposit ETH</button>
+                      <button onClick={() => disconnect()} style={{ flex: 1, padding: "10px", border: `1px solid ${red}44`, borderRadius: 10, cursor: "pointer", background: redLight, color: red, fontSize: 13, fontFamily: "inherit", fontWeight: 600 }}>Disconnect</button>
                     </div>
                   </div>
                 )}
@@ -563,7 +485,6 @@ export default function App() {
             {/* EMPLOYEES PAGE */}
             {page === "employees" && (
               <div>
-                {/* Contract Stats */}
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12, marginBottom: 20 }}>
                   {[
                     { label: "On-chain employees", val: contractEmployees.length, color: brand },
@@ -594,7 +515,7 @@ export default function App() {
                     <table style={{ width: "100%", borderCollapse: "collapse" }}>
                       <thead>
                         <tr style={{ background: surface2 }}>
-                          {["Name", "Wallet", "Chain", "Salary (ETH)", "Last Paid", ""].map((h) => (
+                          {["Name", "Wallet", "Chain", "Salary (ETH)", "Last Paid", "Actions"].map((h) => (
                             <th key={h} style={{ fontSize: 11, color: textMuted, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", padding: "12px 14px", borderBottom: `1px solid ${border}`, textAlign: "left" }}>{h}</th>
                           ))}
                         </tr>
@@ -612,7 +533,16 @@ export default function App() {
                             <td style={{ padding: "12px 14px" }}><ChainBadge chain={e.chain} /></td>
                             <td style={{ padding: "12px 14px", fontWeight: 600, color: green }}>{e.salary ? `${parseFloat(e.salary).toFixed(4)} ETH` : <span style={{ color: textMuted }}>—</span>}</td>
                             <td style={{ padding: "12px 14px", fontSize: 12, color: textMuted }}>{e.lastPaid || "—"}</td>
-                            <td style={{ padding: "12px 14px" }}><button style={btnSm} onClick={() => openEditModal(e)}>Edit</button></td>
+                            <td style={{ padding: "12px 14px" }}>
+                              <div style={{ display: "flex", gap: 6 }}>
+                                <button style={btnSm} onClick={() => openEditModal(e)}>Edit</button>
+                                {e.isOnChain && isOwner && (
+                                  <button style={btnRedSm} onClick={() => removeEmployee(e.contractId, e.name)} disabled={txPending}>
+                                    Remove
+                                  </button>
+                                )}
+                              </div>
+                            </td>
                           </tr>
                         ))}
                         {filteredEmployees.length === 0 && (
@@ -642,14 +572,12 @@ export default function App() {
                     </div>
                   ))}
                 </div>
-
                 {!enoughFunds && parseFloat(payrollCost) > 0 && (
                   <div style={{ background: redLight, border: `1px solid ${red}44`, borderRadius: 12, padding: "12px 16px", marginBottom: 16, fontSize: 13, color: red, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <span>⚠️ Treasury needs {(parseFloat(payrollCost) - parseFloat(treasuryBalance)).toFixed(4)} more ETH</span>
                     <button style={{ ...btnSm, background: `${red}22`, color: red, border: `1px solid ${red}44` }} onClick={() => setShowDepositModal(true)}>Deposit ETH →</button>
                   </div>
                 )}
-
                 <div style={{ background: surface, borderRadius: 12, border: `1px solid ${border}`, overflow: "hidden", marginBottom: 16 }}>
                   <table style={{ width: "100%", borderCollapse: "collapse" }}>
                     <thead>
@@ -673,7 +601,6 @@ export default function App() {
                     </tbody>
                   </table>
                 </div>
-
                 <div style={{ padding: "16px 20px", borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "space-between", background: `linear-gradient(135deg, ${brandLight}, ${bg})`, border: `1px solid ${brand}44` }}>
                   <div>
                     <div style={{ fontSize: 11, color: brand, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Total to disburse</div>
@@ -803,29 +730,10 @@ export default function App() {
           <div style={modalBox}>
             <div style={{ fontSize: 16, fontWeight: 700, color: textPrimary, marginBottom: 8 }}>CSV import</div>
             <div style={{ fontSize: 12, color: textMuted, marginBottom: 14 }}>Columns: <code style={{ background: surface2, padding: "2px 6px", borderRadius: 4, color: brand }}>name, email, wallet, chain, salary</code></div>
-            <div onClick={() => setCsvText("name,email,wallet,chain,salary\nAlex Wong,alex@company.com,0xD4E5...1234,ERC20,4200\nFatima Hassan,fatima@company.com,0xB3C4...5678,BEP20,3800")}
-              style={{ border: `1.5px dashed ${brand}66`, borderRadius: 12, padding: 24, textAlign: "center", cursor: "pointer", color: brand, background: `${brand}11`, marginBottom: 14 }}>
-              <div style={{ fontSize: 28, marginBottom: 8 }}>↑</div>
-              <div style={{ fontWeight: 600 }}>Click to load demo CSV</div>
-            </div>
-            <textarea rows={4} placeholder="Or paste CSV data here..." value={csvText} onChange={(e) => setCsvText(e.target.value)} style={{ ...input, resize: "vertical" }} />
+            <textarea rows={4} placeholder="Paste CSV data here..." value={csvText} onChange={(e) => setCsvText(e.target.value)} style={{ ...input, resize: "vertical" }} />
             <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 20 }}>
               <button style={btn} onClick={() => setShowCsvModal(false)}>Cancel</button>
               <button className="btn-hover-glow" style={btnBrand} onClick={importCsv}>Import</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* SET ALL MODAL */}
-      {showSetAllModal && (
-        <div style={modal}>
-          <div style={{ ...modalBox, width: 360 }}>
-            <div style={{ fontSize: 16, fontWeight: 700, color: textPrimary, marginBottom: 20 }}>Set amount for all employees</div>
-            <input type="number" placeholder="e.g. 0.05" value={bulkAmount} onChange={(e) => setBulkAmount(e.target.value)} style={input} />
-            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 20 }}>
-              <button style={btn} onClick={() => setShowSetAllModal(false)}>Cancel</button>
-              <button style={btnGreen} onClick={applyBulk}>Apply to all</button>
             </div>
           </div>
         </div>
@@ -841,7 +749,7 @@ export default function App() {
               <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: `1px solid ${border}` }}>
                 <div style={{ width: 32, height: 32, borderRadius: "50%", background: `${brand}22`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: brand }}>{s.name.split(" ").map((x) => x[0]).join("").slice(0, 2)}</div>
                 <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 600, color: textPrimary }}>{s.name}</div><div style={{ fontFamily: "monospace", fontSize: 11, color: textMuted }}>{s.addr}</div></div>
-                <button style={{ ...btnSm, ...btnRed }} onClick={() => setSigners(signers.filter((x) => x.id !== s.id))}>Remove</button>
+                <button style={btnRedSm} onClick={() => setSigners(signers.filter((x) => x.id !== s.id))}>Remove</button>
               </div>
             ))}
             <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
