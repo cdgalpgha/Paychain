@@ -368,19 +368,39 @@ export default function App() {
     if (history.length === 0) { alert("No history yet."); return; }
     let csv = "Run #,Date,Employee,Wallet,Chain,Amount,Token,Status\n";
     history.forEach((r) => { r.items.forEach((i) => { csv += `${r.id},"${r.date} ${r.time}","${i.name}","${i.addr}",${i.chain},${i.amt},${i.token},${r.status}\n`; }); });
-    setExportPreview({ title: "Export CSV", content: csv, filename: "payroll-report.csv", type: "text/csv" });
+    const blob = new Blob([csv], { type: "text/csv" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "payroll-report.csv";
+    a.click();
   }
 
   function exportPDF() {
     if (history.length === 0) { alert("No history yet."); return; }
-    let c = "PAYCHAIN — PAYROLL REPORT\nGenerated: " + new Date().toLocaleString() + "\n" + "=".repeat(46) + "\n\n";
+    let html = `<html><head><title>PayChain Report</title><style>
+      body{font-family:Arial,sans-serif;padding:40px;color:#111;}
+      h1{color:#7C5CFC;margin-bottom:4px;}
+      .sub{color:#666;font-size:13px;margin-bottom:30px;}
+      table{width:100%;border-collapse:collapse;margin-bottom:30px;}
+      th{background:#7C5CFC;color:#fff;padding:10px 12px;text-align:left;font-size:12px;}
+      td{padding:10px 12px;border-bottom:1px solid #eee;font-size:13px;}
+      .run-header{background:#f5f3ff;padding:12px 16px;border-left:4px solid #7C5CFC;margin-bottom:8px;border-radius:4px;}
+      .total{font-weight:bold;color:#7C5CFC;}
+    </style></head><body>
+    <h1>⛓ PayChain — Payroll Report</h1>
+    <div class="sub">Generated: ${new Date().toLocaleString()} | Contract: ${CONTRACT_ADDRESS}</div>`;
     history.forEach((r) => {
-      c += `Run #${r.id} | ${r.date} | ${r.status}\nTotal: ${r.total.toFixed(4)} ${r.token} | ${r.count} employee(s)\n` + "-".repeat(46) + "\n";
-      r.items.forEach((i) => { c += `  ${i.name.padEnd(20)} ${i.chain.padEnd(10)} ${i.amt.toFixed(4)} ${i.token}\n`; });
-      c += "\n";
+      html += `<div class="run-header"><strong>Run #${r.id}</strong> — ${r.date} at ${r.time} &nbsp;|&nbsp; Status: <strong>${r.status}</strong> &nbsp;|&nbsp; Total: <span class="total">${r.total.toFixed(4)} ${r.token}</span></div>
+      <table><tr><th>Employee</th><th>Wallet</th><th>Chain</th><th>Amount</th></tr>`;
+      r.items.forEach((i) => { html += `<tr><td>${i.name}</td><td style="font-family:monospace;font-size:11px">${i.addr}</td><td>${i.chain}</td><td style="color:#10B981;font-weight:bold">${i.amt.toFixed(4)} ${i.token}</td></tr>`; });
+      html += `</table>`;
     });
-    c += "=".repeat(46) + "\nTOTAL DISBURSED: " + history.reduce((s, r) => s + r.total, 0).toFixed(4) + " ETH";
-    setExportPreview({ title: "Export PDF", content: c, filename: "payroll-report.txt", type: "text/plain" });
+    const total = history.reduce((s, r) => s + r.total, 0);
+    html += `<div style="border-top:2px solid #7C5CFC;padding-top:16px;font-size:16px;font-weight:bold;color:#7C5CFC">Total Disbursed: ${total.toFixed(4)} ETH</div></body></html>`;
+    const win = window.open("", "_blank");
+    win.document.write(html);
+    win.document.close();
+    win.print();
   }
 
   function downloadFile(content, filename, type) {
