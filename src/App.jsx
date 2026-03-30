@@ -4,7 +4,7 @@ import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { parseEther, formatEther } from 'viem';
 import { supabase } from './supabase';
 
-const CONTRACT_ADDRESS = "0x55271b6f111178A9e53413995eaef2867dea8E02";
+const CONTRACT_ADDRESS = "0x1E6d93B4641cAFDA9e629b9bbd747aE7261BB786";
 const CONTRACT_ABI = [
   { name: "addEmployee", type: "function", stateMutability: "nonpayable", inputs: [{ name: "wallet", type: "address" }, { name: "name", type: "string" }, { name: "salaryWei", type: "uint256" }], outputs: [{ name: "id", type: "uint256" }] },
   { name: "deactivateEmployee", type: "function", stateMutability: "nonpayable", inputs: [{ name: "id", type: "uint256" }], outputs: [] },
@@ -84,6 +84,7 @@ const WalletConnectLogo = ({ size = 38 }) => (
 // ── Chain Badge ───────────────────────────────────────────────────────────
 const ChainBadge = ({ chain }) => {
   const colors = {
+    "base mainnet": { bg: "rgba(6,182,212,0.12)", color: "#06b6d4", border: "rgba(6,182,212,0.25)" },
     "base sepolia": { bg: "rgba(6,182,212,0.12)", color: "#06b6d4", border: "rgba(6,182,212,0.25)" },
     erc20: { bg: "rgba(96,165,250,0.12)", color: "#60a5fa", border: "rgba(96,165,250,0.25)" },
     bep20: { bg: "rgba(245,158,11,0.12)", color: "#f59e0b", border: "rgba(245,158,11,0.25)" },
@@ -166,7 +167,7 @@ export default function App() {
   useEffect(() => {
     if (activeEmployeesData) {
       const [ids, wallets, names, salaries, lastPaids] = activeEmployeesData;
-      setContractEmployees(ids.map((id, i) => ({ id: id.toString(), contractId: id, name: names[i], addr: wallets[i], salary: formatEther(salaries[i]), lastPaid: lastPaids[i].toString() === '0' ? 'Never' : new Date(Number(lastPaids[i]) * 1000).toLocaleDateString(), chain: "Base Sepolia", email: "", isOnChain: true })));
+      setContractEmployees(ids.map((id, i) => ({ id: id.toString(), contractId: id, name: names[i], addr: wallets[i], salary: formatEther(salaries[i]), lastPaid: lastPaids[i].toString() === '0' ? 'Never' : new Date(Number(lastPaids[i]) * 1000).toLocaleDateString(), chain: "Base Mainnet", email: "", isOnChain: true })));
     }
   }, [activeEmployeesData]);
 
@@ -187,7 +188,6 @@ export default function App() {
   const glowCard = { background: `linear-gradient(135deg, ${surface} 0%, ${surface2} 100%)`, border: `1px solid ${border}`, borderRadius: 16, position: "relative", overflow: "hidden", transition: "all 0.3s cubic-bezier(0.16,1,0.3,1)" };
 
   useEffect(() => { loadEmployees(); loadHistory(); }, []);
-
   async function loadEmployees() { setLoading(true); const { data, error } = await supabase.from('employees').select('*').order('created_at', { ascending: true }); if (!error && data) setEmployees(data); setLoading(false); }
   async function loadHistory() { const { data, error } = await supabase.from('payroll_runs').select('*').order('created_at', { ascending: false }); if (!error && data) setHistory(data.map((r, i) => ({ ...r, id: i + 1, date: r.run_date, time: r.run_time, count: r.items?.length || 0, items: r.items || [] }))); }
 
@@ -212,7 +212,7 @@ export default function App() {
       await publicClient.waitForTransactionReceipt({ hash: txHash });
       await supabase.from('employees').insert([{ name: formData.name, email: formData.email, addr: formData.addr, chain: formData.chain, salary: salaryEth }]);
       await refetchEmployees(); await loadEmployees(); await refetchPayrollCost();
-      setSuccess({ icon: "✓", title: "Employee added!", msg: `${formData.name} has been added to the blockchain payroll.`, bg: greenLight, color: green });
+      setSuccess({ icon: "✓", title: "Employee added!", msg: `${formData.name} added to Base Mainnet payroll.`, bg: greenLight, color: green });
       triggerConfetti();
     } catch (e) { alert("Transaction failed: " + (e.shortMessage || e.message)); }
     finally { setTxPending(false); setShowAddModal(false); }
@@ -256,7 +256,7 @@ export default function App() {
       const total = contractEmployees.reduce((s, e) => s + parseFloat(e.salary), 0);
       await supabase.from('payroll_runs').insert([{ run_date: new Date().toLocaleDateString(), run_time: new Date().toLocaleTimeString(), total, token: "ETH", status: "Success", items }]);
       await loadHistory(); await refetchTreasury(); await refetchEmployees();
-      setSuccess({ icon: "✓", title: "Payroll executed! 🚀", msg: `${contractEmployees.length} employee(s) paid ${parseFloat(payrollCost).toFixed(4)} ETH on Base Sepolia!`, bg: greenLight, color: green });
+      setSuccess({ icon: "✓", title: "Payroll executed! 🚀", msg: `${contractEmployees.length} employee(s) paid ${parseFloat(payrollCost).toFixed(4)} ETH on Base Mainnet!`, bg: greenLight, color: green });
       triggerConfetti();
     } catch (e) { alert("Payroll failed: " + (e.shortMessage || e.message)); }
     finally { setTxPending(false); }
@@ -282,7 +282,7 @@ export default function App() {
       await supabase.from('payroll_runs').insert([{ run_date: a.date, run_time: a.time, total: a.total, token: a.token, status: "Approved", items: a.items }]);
       await loadHistory(); await refetchTreasury();
       setShowReviewModal(false); triggerConfetti();
-      setSuccess({ icon: "✓", title: "Approved & executed!", msg: "Payroll broadcast on Base Sepolia.", bg: greenLight, color: green });
+      setSuccess({ icon: "✓", title: "Approved & executed!", msg: "Payroll broadcast on Base Mainnet.", bg: greenLight, color: green });
     } catch (e) { alert("Failed: " + (e.shortMessage || e.message)); }
     finally { setTxPending(false); }
   }
@@ -324,7 +324,6 @@ export default function App() {
 
   const modal = { position: "fixed", inset: 0, background: "rgba(3,1,10,0.85)", backdropFilter: "blur(12px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 };
   const modalBox = { background: `linear-gradient(135deg, ${surface} 0%, ${surface2} 100%)`, borderRadius: 20, padding: 28, width: 420, border: `1px solid ${border2}`, boxShadow: `0 0 60px rgba(124,58,237,0.2), 0 25px 60px rgba(0,0,0,0.7)`, animation: "scaleIn 0.3s cubic-bezier(0.16,1,0.3,1) forwards" };
-
   const walletOptions = [
     { name: "MetaMask", chain: "EVM chains", logo: <MetaMaskLogo size={38} /> },
     { name: "WalletConnect", chain: "Any wallet", logo: <WalletConnectLogo size={38} /> },
@@ -332,8 +331,7 @@ export default function App() {
 
   return (
     <div style={{ fontFamily: "'Outfit', system-ui, sans-serif", color: textPrimary, fontSize: 14, background: bg, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 20, position: "relative" }}>
-      <Particles />
-      <Confetti show={showConfetti} />
+      <Particles /><Confetti show={showConfetti} />
       <div style={{ display: "flex", width: "100%", maxWidth: 1160, height: 720, border: `1px solid ${border}`, borderRadius: 24, overflow: "hidden", background: surface, boxShadow: `0 0 80px rgba(124,58,237,0.15), 0 0 160px rgba(37,99,235,0.08), 0 40px 80px rgba(0,0,0,0.8)`, position: "relative", zIndex: 1 }}>
         <div style={{ position: "absolute", inset: 0, borderRadius: 24, background: `linear-gradient(135deg, rgba(124,58,237,0.15), transparent, rgba(37,99,235,0.1))`, pointerEvents: "none", zIndex: 0 }} />
 
@@ -391,31 +389,22 @@ export default function App() {
                   <div style={{ position: "absolute", inset: -20, borderRadius: "50%", background: "radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%)", animation: "logo-pulse 3s ease-in-out infinite", pointerEvents: "none" }} />
                 </div>
                 <div style={{ fontSize: 28, fontWeight: 900, letterSpacing: "-0.03em", textAlign: "center", background: "linear-gradient(135deg, #e2d9f3, #a78bfa, #60a5fa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", marginBottom: 8 }}>On-Chain Payroll</div>
-                <div style={{ fontSize: 14, color: textSecondary, marginBottom: 32, textAlign: "center", maxWidth: 340, lineHeight: 1.7 }}>Connect your deployer wallet to manage employees and run payroll on <span style={{ color: brand, fontWeight: 600 }}>Base Sepolia</span></div>
-
-                {/* MetaMask & WalletConnect only */}
+                <div style={{ fontSize: 14, color: textSecondary, marginBottom: 32, textAlign: "center", maxWidth: 340, lineHeight: 1.7 }}>Connect your wallet to manage employees and run payroll on <span style={{ color: brand, fontWeight: 600 }}>Base Mainnet</span></div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, width: 440 }}>
                   {walletOptions.map(w => (
-                    <div key={w.name} onClick={() => connectWallet()} className="card-hover"
-                      style={{ ...glowCard, padding: "22px 20px", cursor: "pointer", display: "flex", alignItems: "center", gap: 16 }}>
-                      <div style={{ width: 54, height: 54, borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", background: surface2, border: `1px solid ${border2}`, flexShrink: 0, overflow: "hidden" }}>
-                        {w.logo}
-                      </div>
-                      <div>
-                        <div style={{ fontSize: 15, fontWeight: 700, color: textPrimary }}>{w.name}</div>
-                        <div style={{ fontSize: 11, color: textMuted, marginTop: 3 }}>{w.chain}</div>
-                      </div>
+                    <div key={w.name} onClick={() => connectWallet()} className="card-hover" style={{ ...glowCard, padding: "22px 20px", cursor: "pointer", display: "flex", alignItems: "center", gap: 16 }}>
+                      <div style={{ width: 54, height: 54, borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", background: surface2, border: `1px solid ${border2}`, flexShrink: 0, overflow: "hidden" }}>{w.logo}</div>
+                      <div><div style={{ fontSize: 15, fontWeight: 700, color: textPrimary }}>{w.name}</div><div style={{ fontSize: 11, color: textMuted, marginTop: 3 }}>{w.chain}</div></div>
                       {isConnected && <div style={{ marginLeft: "auto", width: 9, height: 9, borderRadius: "50%", background: green, boxShadow: `0 0 10px ${green}` }} />}
                     </div>
                   ))}
                 </div>
-
                 {isConnected && (
                   <div style={{ marginTop: 24, padding: "24px", border: `1px solid rgba(124,58,237,0.3)`, borderRadius: 20, width: 440, background: `linear-gradient(135deg, rgba(124,58,237,0.1), rgba(37,99,235,0.05))`, boxShadow: "0 0 40px rgba(124,58,237,0.15)" }}>
                     <div style={{ fontSize: 10, color: brand, marginBottom: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em" }}>✓ Connected Wallet</div>
                     <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, marginBottom: 16, color: textSecondary, wordBreak: "break-all", lineHeight: 1.6 }}>{address}</div>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 20 }}>
-                      {[["Network", "Base Sepolia", textPrimary], ["Treasury", `${parseFloat(treasuryBalance).toFixed(4)} ETH`, green], ["Role", isOwner ? "👑 Owner" : "Viewer", isOwner ? amber : textSecondary]].map(([label, val, color]) => (
+                      {[["Network", "Base Mainnet", textPrimary], ["Treasury", `${parseFloat(treasuryBalance).toFixed(4)} ETH`, green], ["Role", isOwner ? "👑 Owner" : "Viewer", isOwner ? amber : textSecondary]].map(([label, val, color]) => (
                         <div key={label}><div style={{ fontSize: 9, color: textMuted, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 4 }}>{label}</div><div style={{ fontSize: 13, fontWeight: 700, color }}>{val}</div></div>
                       ))}
                     </div>
@@ -445,15 +434,13 @@ export default function App() {
                     <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: textMuted, fontSize: 14 }}>🔍</span>
                     <input style={{ ...input, width: 200, paddingLeft: 34 }} placeholder="Search employees..." value={searchQ} onChange={e => setSearchQ(e.target.value)} />
                   </div>
-                  {["All", "Base Sepolia", ...CHAINS.slice(0, 2)].map(c => <button key={c} onClick={() => setChainFilter(c)} style={{ ...btnSm, borderRadius: 20, background: chainFilter === c ? `linear-gradient(135deg, ${brand}, ${blue})` : surface2, color: chainFilter === c ? "#fff" : textSecondary, border: chainFilter === c ? "none" : `1px solid ${border}`, boxShadow: chainFilter === c ? `0 0 12px rgba(124,58,237,0.4)` : "none" }}>{c}</button>)}
+                  {["All", "Base Mainnet", ...CHAINS.slice(0, 2)].map(c => <button key={c} onClick={() => setChainFilter(c)} style={{ ...btnSm, borderRadius: 20, background: chainFilter === c ? `linear-gradient(135deg, ${brand}, ${blue})` : surface2, color: chainFilter === c ? "#fff" : textSecondary, border: chainFilter === c ? "none" : `1px solid ${border}`, boxShadow: chainFilter === c ? `0 0 12px rgba(124,58,237,0.4)` : "none" }}>{c}</button>)}
                   <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
                     <button style={btnSm} onClick={() => setShowCsvModal(true)}>📂 CSV import</button>
                     <button className="btn-hover-glow" style={btnBrandSm} onClick={openAddModal}>+ Add Employee</button>
                   </div>
                 </div>
-                {loading ? (
-                  <div style={{ textAlign: "center", padding: "60px 0", color: textMuted }}><div style={{ width: 32, height: 32, border: `2px solid ${border2}`, borderTop: `2px solid ${brand}`, borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 12px" }} />Loading from blockchain...</div>
-                ) : (
+                {loading ? <div style={{ textAlign: "center", padding: "60px 0", color: textMuted }}><div style={{ width: 32, height: 32, border: `2px solid ${border2}`, borderTop: `2px solid ${brand}`, borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 12px" }} />Loading from blockchain...</div> : (
                   <div style={{ ...glowCard, overflow: "hidden" }}>
                     <table style={{ width: "100%", borderCollapse: "collapse" }}>
                       <thead><tr style={{ background: `linear-gradient(90deg, ${surface2}, rgba(13,9,32,0.5))` }}>{["Name", "Wallet", "Chain", "Salary", "Last Paid", "Actions"].map(h => <th key={h} style={{ fontSize: 10, color: textMuted, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", padding: "14px 16px", borderBottom: `1px solid ${border}`, textAlign: "left" }}>{h}</th>)}</tr></thead>
@@ -480,7 +467,7 @@ export default function App() {
             {page === "payout" && (
               <div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14, marginBottom: 24 }}>
-                  {[{ label: "Active Employees", val: contractEmployees.length, sub: "on Base Sepolia", color: "#a78bfa", accent: brand }, { label: "Payroll Cost", val: `${parseFloat(payrollCost).toFixed(4)} ETH`, sub: enoughFunds ? "✓ treasury funded" : "⚠ needs top-up", color: enoughFunds ? green : red, accent: enoughFunds ? green : red }, { label: "Treasury Balance", val: `${parseFloat(treasuryBalance).toFixed(4)} ETH`, sub: shortAddress || "Connect wallet", color: "#60a5fa", accent: blue }].map(card => (
+                  {[{ label: "Active Employees", val: contractEmployees.length, sub: "on Base Mainnet", color: "#a78bfa", accent: brand }, { label: "Payroll Cost", val: `${parseFloat(payrollCost).toFixed(4)} ETH`, sub: enoughFunds ? "✓ treasury funded" : "⚠ needs top-up", color: enoughFunds ? green : red, accent: enoughFunds ? green : red }, { label: "Treasury Balance", val: `${parseFloat(treasuryBalance).toFixed(4)} ETH`, sub: shortAddress || "Connect wallet", color: "#60a5fa", accent: blue }].map(card => (
                     <div key={card.label} className="card-hover" style={{ ...glowCard, padding: "20px" }}>
                       <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, ${card.accent}, transparent)` }} />
                       <div style={{ position: "absolute", top: -30, right: -30, width: 100, height: 100, borderRadius: "50%", background: card.accent, opacity: 0.06, filter: "blur(20px)" }} />
@@ -552,7 +539,7 @@ export default function App() {
 
       {/* MODALS */}
       {showDepositModal && <div style={modal}><div style={{ ...modalBox, width: 360 }}><div style={{ fontSize: 18, fontWeight: 800, color: textPrimary, marginBottom: 4 }}>💰 Deposit ETH</div><div style={{ fontSize: 13, color: textSecondary, marginBottom: 20 }}>Treasury: <span style={{ color: green, fontWeight: 700 }}>{parseFloat(treasuryBalance).toFixed(4)} ETH</span></div><label style={{ display: "block", fontSize: 11, color: textMuted, marginBottom: 6, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>Amount (ETH)</label><input type="number" step="0.001" placeholder="e.g. 0.05" value={depositAmount} onChange={e => setDepositAmount(e.target.value)} style={input} /><div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 24 }}><button style={btn} onClick={() => setShowDepositModal(false)}>Cancel</button><button className="btn-hover-glow" style={btnBrand} onClick={depositToTreasury} disabled={txPending}>{txPending ? "⏳ Pending..." : "Deposit"}</button></div></div></div>}
-      {showAddModal && <div style={modal}><div style={modalBox}><div style={{ fontSize: 18, fontWeight: 800, color: textPrimary, marginBottom: 4 }}>{editingEmployee ? "✏️ Edit Employee" : "👤 Add Employee"}</div><div style={{ fontSize: 12, color: textSecondary, marginBottom: 24, padding: "8px 12px", background: brandLight, borderRadius: 8, border: `1px solid rgba(124,58,237,0.2)` }}>⛓ Blockchain transaction on Base Sepolia</div>{[["Full name", "name", "text", "Sarah Chen"], ["Email (optional)", "email", "email", "sarah@company.com"], ["Wallet address", "addr", "text", "0x..."], ["Monthly salary (ETH)", "salary", "number", "0.05"]].map(([label, field, type, ph]) => (<div key={field} style={{ marginBottom: 16 }}><label style={{ display: "block", fontSize: 11, color: textMuted, marginBottom: 6, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>{label}</label><input type={type} placeholder={ph} value={formData[field]} onChange={e => setFormData({ ...formData, [field]: e.target.value })} style={input} /></div>))}<div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 8 }}><button style={btn} onClick={() => setShowAddModal(false)}>Cancel</button><button className="btn-hover-glow" style={btnBrand} onClick={saveEmployee} disabled={txPending}>{txPending ? "⏳ Broadcasting..." : "Add to Blockchain"}</button></div></div></div>}
+      {showAddModal && <div style={modal}><div style={modalBox}><div style={{ fontSize: 18, fontWeight: 800, color: textPrimary, marginBottom: 4 }}>{editingEmployee ? "✏️ Edit Employee" : "👤 Add Employee"}</div><div style={{ fontSize: 12, color: textSecondary, marginBottom: 24, padding: "8px 12px", background: brandLight, borderRadius: 8, border: `1px solid rgba(124,58,237,0.2)` }}>⛓ Blockchain transaction on Base Mainnet</div>{[["Full name", "name", "text", "Sarah Chen"], ["Email (optional)", "email", "email", "sarah@company.com"], ["Wallet address", "addr", "text", "0x..."], ["Monthly salary (ETH)", "salary", "number", "0.05"]].map(([label, field, type, ph]) => (<div key={field} style={{ marginBottom: 16 }}><label style={{ display: "block", fontSize: 11, color: textMuted, marginBottom: 6, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>{label}</label><input type={type} placeholder={ph} value={formData[field]} onChange={e => setFormData({ ...formData, [field]: e.target.value })} style={input} /></div>))}<div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 8 }}><button style={btn} onClick={() => setShowAddModal(false)}>Cancel</button><button className="btn-hover-glow" style={btnBrand} onClick={saveEmployee} disabled={txPending}>{txPending ? "⏳ Broadcasting..." : "Add to Blockchain"}</button></div></div></div>}
       {showCsvModal && <div style={modal}><div style={modalBox}><div style={{ fontSize: 18, fontWeight: 800, color: textPrimary, marginBottom: 8 }}>📂 CSV Import</div><div style={{ fontSize: 12, color: textMuted, marginBottom: 16 }}>Columns: <code style={{ background: surface2, padding: "2px 8px", borderRadius: 6, color: "#a78bfa" }}>name, email, wallet, chain, salary</code></div><textarea rows={5} placeholder="Paste CSV data here..." value={csvText} onChange={e => setCsvText(e.target.value)} style={{ ...input, resize: "vertical" }} /><div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 20 }}><button style={btn} onClick={() => setShowCsvModal(false)}>Cancel</button><button className="btn-hover-glow" style={btnBrand} onClick={importCsv}>Import</button></div></div></div>}
       {showSignerModal && <div style={modal}><div style={modalBox}><div style={{ fontSize: 18, fontWeight: 800, color: textPrimary, marginBottom: 8 }}>⚙️ Approval Signers</div><div style={{ fontSize: 12, color: textSecondary, marginBottom: 20 }}>Payroll requires sign-off from these addresses.</div>{signers.map(s => (<div key={s.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 0", borderBottom: `1px solid ${border}` }}><div style={{ width: 36, height: 36, borderRadius: "50%", background: brandLight, border: `1px solid rgba(124,58,237,0.25)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, color: "#a78bfa" }}>{s.name.split(" ").map(x => x[0]).join("").slice(0, 2)}</div><div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 600, color: textPrimary }}>{s.name}</div><div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: textMuted }}>{s.addr}</div></div><button style={btnRedSm} onClick={() => setSigners(signers.filter(x => x.id !== s.id))}>Remove</button></div>))}<div style={{ display: "flex", gap: 8, marginTop: 16 }}><input placeholder="Name" value={newSignerName} onChange={e => setNewSignerName(e.target.value)} style={{ ...input, flex: 1 }} /><input placeholder="0x..." value={newSignerAddr} onChange={e => setNewSignerAddr(e.target.value)} style={{ ...input, flex: 2 }} /><button style={btnBrandSm} onClick={() => { if (!newSignerName || !newSignerAddr) return; setSigners([...signers, { id: nextSignerId, name: newSignerName, addr: newSignerAddr }]); setNextSignerId(nextSignerId + 1); setNewSignerName(""); setNewSignerAddr(""); }}>Add</button></div><div style={{ display: "flex", justifyContent: "flex-end", marginTop: 20 }}><button className="btn-hover-glow" style={btnBrand} onClick={() => setShowSignerModal(false)}>Done</button></div></div></div>}
       {showReviewModal && (() => { const a = approvals.find(x => x.id === reviewingId); if (!a) return null; return <div style={modal}><div style={{ ...modalBox, width: 460 }}><div style={{ fontSize: 18, fontWeight: 800, color: textPrimary, marginBottom: 20 }}>🔍 Review Payroll</div>{[["Date", `${a.date} ${a.time}`], ["Employees", a.count], ["Token", a.token], ["Total", `${a.total.toFixed(4)} ETH`]].map(([label, val]) => <div key={label} style={{ display: "flex", justifyContent: "space-between", fontSize: 14, padding: "10px 0", borderBottom: `1px solid ${border}` }}><span style={{ color: textMuted, fontWeight: 600 }}>{label}</span><span style={{ fontWeight: label === "Total" ? 800 : 600, color: label === "Total" ? green : textPrimary }}>{val}</span></div>)}<div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 24 }}><button style={btnRed} onClick={rejectApproval}>Reject</button><button className="btn-hover-glow" style={btnGreen} onClick={approveAndExecute} disabled={txPending}>{txPending ? "⏳ Broadcasting..." : "✓ Approve & Execute"}</button></div></div></div>; })()}
