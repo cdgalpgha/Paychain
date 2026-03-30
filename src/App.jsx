@@ -612,15 +612,7 @@ export default function App() {
                             <td style={{ padding: "12px 14px" }}><ChainBadge chain={e.chain} /></td>
                             <td style={{ padding: "12px 14px", fontWeight: 600, color: green }}>{e.salary ? `${parseFloat(e.salary).toFixed(4)} ETH` : <span style={{ color: textMuted }}>—</span>}</td>
                             <td style={{ padding: "12px 14px", fontSize: 12, color: textMuted }}>{e.lastPaid || "—"}</td>
-                            <td style={{ padding: "12px 14px", display: "flex", gap: 8 }}>
-  <button style={btnSm} onClick={() => openEditModal(e)}>Edit</button>
-  {e.isOnChain && <button style={{ ...btnSm, ...btnRed }} onClick={() => deactivateEmployee(e.contractId, e.name)}>Remove</button>}
-</td>
-```
-
-Now we also need to add the `deactivateEmployee` function. Use **Ctrl + F** and search for:
-```
-async function depositToTreasury
+                            <td style={{ padding: "12px 14px" }}><button style={btnSm} onClick={() => openEditModal(e)}>Edit</button></td>
                           </tr>
                         ))}
                         {filteredEmployees.length === 0 && (
