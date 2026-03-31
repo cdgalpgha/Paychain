@@ -82,7 +82,7 @@ export default function LandingPage({ onLaunch }) {
       <nav style={s.nav}>
         <div style={s.logo}>
           <div style={s.logoIcon}>$</div>
-          <span style={s.logoText}>PayChain</span>
+          <span style={s.logoText}>PayLan</span>
         </div>
         <button style={s.navBtn} onClick={onLaunch}>Launch App →</button>
       </nav>
@@ -167,7 +167,7 @@ export default function LandingPage({ onLaunch }) {
           <p style={s.sectionSub}>Three simple steps to run your first on-chain payroll</p>
           <div style={s.stepsGrid}>
             {[
-              { num: "1", title: "Connect Treasury Wallet", desc: "Connect the wallet that deployed the PayChain contract. This becomes your owner wallet with full admin access." },
+              { num: "1", title: "Connect Treasury Wallet", desc: "Connect the wallet that deployed the PayLan contract. This becomes your owner wallet with full admin access." },
               { num: "2", title: "Add Your Team", desc: "Add employees with their wallet addresses and monthly ETH salary. All data is stored on-chain — fully transparent and immutable." },
               { num: "3", title: "Fund & Execute", desc: "Deposit ETH into the treasury contract. When ready, hit Execute Payroll and all employees are paid instantly in one transaction." },
             ].map((step, i) => (
@@ -216,7 +216,7 @@ export default function LandingPage({ onLaunch }) {
           <h2 style={{ ...s.sectionTitle, marginBottom: 16 }}>Ready to go on-chain?</h2>
           <p style={{ ...s.sectionSub, marginBottom: 36 }}>Start paying your team in crypto today. It takes less than 5 minutes to set up.</p>
           <button style={{ ...s.btnPrimary, fontSize: 16, padding: "16px 40px" }} onClick={onLaunch}>
-            Launch PayChain →
+            Launch PayLan →
           </button>
           <div style={{ marginTop: 20, fontSize: 13, color: "#9ca3af" }}>
             Live on Base Mainnet · Contract verified on BaseScan
@@ -228,7 +228,7 @@ export default function LandingPage({ onLaunch }) {
       <footer style={s.footer}>
         <div style={s.logo}>
           <div style={{ ...s.logoIcon, width: 28, height: 28, fontSize: 14 }}>$</div>
-          <span style={{ ...s.logoText, fontSize: 15 }}>PayChain</span>
+          <span style={{ ...s.logoText, fontSize: 15 }}>PayLan</span>
         </div>
         <span style={s.footerText}>Built on Base · Open Source · 2025</span>
         <a href="https://basescan.org/address/0x1E6d93B4641cAFDA9e629b9bbd747aE7261BB786" target="_blank" rel="noreferrer" style={{ fontSize: 13, color: "#7c3aed", textDecoration: "none", fontWeight: 600 }}>View Contract ↗</a>
